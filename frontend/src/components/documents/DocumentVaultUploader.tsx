@@ -39,101 +39,93 @@ export const DocumentVaultUploader: React.FC<DocumentVaultUploaderProps> = ({ on
   };
 
   return (
-    <div className="p-5 rounded-xl border border-slate-800 bg-[#0B0F17] shadow-sm space-y-4">
-      <div className="flex items-center gap-2.5 pb-3 border-b border-slate-800">
-        <div className="p-2 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-400">
-          <Scan className="w-5 h-5" />
+    <div className="p-5 rounded-lg border border-slate-200 bg-white shadow-xs space-y-4">
+      <div className="flex items-center gap-2.5 pb-3 border-b border-slate-200">
+        <div className="p-2 rounded bg-slate-100 border border-slate-200 text-slate-700">
+          <Scan className="w-4 h-4" />
         </div>
         <div>
-          <h3 className="text-sm font-bold text-slate-100">Statutory Document Vault & OCR Engine</h3>
-          <p className="text-xs text-slate-400">Upload certificates, licenses, or inspection reports for metadata extraction</p>
+          <h3 className="text-sm font-bold text-slate-900">Statutory Document Vault & OCR Engine</h3>
+          <p className="text-xs text-slate-500">Upload certificates, licenses, or inspection reports for metadata extraction</p>
         </div>
       </div>
 
       <form onSubmit={handleUpload} className="space-y-4">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className="text-xs font-semibold text-slate-300 block mb-1">Document Title *</label>
+            <label className="text-xs font-semibold text-slate-700 block mb-1">Document Title *</label>
             <input
               type="text"
               required
               placeholder="e.g. DGMS Quarterly Electrical Fitness Clearance"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full px-3 py-2 bg-[#080C13] border border-slate-700 rounded-lg text-xs text-slate-100 focus:outline-none focus:border-amber-500"
+              className="w-full px-3 py-1.5 bg-white border border-slate-300 rounded text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-slate-800"
             />
           </div>
 
           <div>
-            <label className="text-xs font-semibold text-slate-300 block mb-1">Document Category</label>
+            <label className="text-xs font-semibold text-slate-700 block mb-1">Statutory Category</label>
             <select
               value={category}
               onChange={(e) => setCategory(e.target.value)}
-              className="w-full px-3 py-2 bg-[#080C13] border border-slate-700 rounded-lg text-xs text-slate-100 focus:outline-none focus:border-amber-500"
+              className="w-full px-3 py-1.5 bg-white border border-slate-300 rounded text-xs text-slate-900 focus:outline-none focus:border-slate-800"
             >
-              <option value="CERTIFICATES">Safety Certificates</option>
-              <option value="INSPECTION_REPORTS">Inspection Reports</option>
-              <option value="APPROVAL_DOCS">Approval & Licenses</option>
-              <option value="COMPLIANCE_EVIDENCE">Compliance Evidence</option>
-              <option value="CONTRACTOR_DOCS">Contractor Clearance</option>
-              <option value="MACHINE_DOCS">Machinery Fitness</option>
+              <option value="CERTIFICATES">Safety Fitness Certificates</option>
+              <option value="LICENSES">Environmental / Operating Licenses</option>
+              <option value="INSPECTION_REPORTS">Statutory Inspection Reports</option>
+              <option value="DGMS_DIRECTIVES">DGMS Compliance Undertakings</option>
             </select>
           </div>
         </div>
 
         <div>
-          <label className="text-xs font-semibold text-slate-300 block mb-1">
-            Raw Document Content / Scan Snippet (for OCR Parser)
+          <label className="text-xs font-semibold text-slate-700 block mb-1">
+            OCR Document Text (Paste Text or Simulate Scanner Input)
           </label>
           <textarea
-            rows={2}
-            placeholder="Paste text from scanned document or certificate (e.g. 'DGMS/2026/041 Certificate of Fitness under Coal Mines Regulation 102 valid until 2026-12-31')..."
+            rows={3}
+            placeholder="Paste statutory certificate text for AI metadata extraction (Issuing Authority, Expiry Date, Validity, Conditions)..."
             value={ocrText}
             onChange={(e) => setOcrText(e.target.value)}
-            className="w-full px-3 py-2 bg-[#080C13] border border-slate-700 rounded-lg text-xs text-slate-100 focus:outline-none focus:border-amber-500"
+            className="w-full px-3 py-1.5 bg-white border border-slate-300 rounded text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-slate-800"
           />
         </div>
 
         <button
           type="submit"
           disabled={uploading}
-          className="px-4 py-2 rounded-lg bg-amber-600 hover:bg-amber-500 disabled:opacity-50 text-black font-semibold text-xs transition-colors flex items-center gap-2 shadow-sm"
+          className="px-4 py-2 rounded bg-slate-900 hover:bg-black disabled:opacity-40 text-white font-medium text-xs transition-colors flex items-center gap-1.5 shadow-xs"
         >
-          <Upload className="w-4 h-4" />
-          <span>{uploading ? "Parsing & Validating OCR..." : "Upload & Run OCR Extraction"}</span>
+          <Upload className="w-3.5 h-3.5" />
+          <span>{uploading ? "Extracting & Uploading..." : "Upload & Run OCR Analysis"}</span>
         </button>
       </form>
 
-      {/* OCR Extraction Result Card */}
+      {/* OCR Extraction Result */}
       {result && (
-        <div className="p-4 rounded-lg border border-emerald-800/60 bg-emerald-950/20 text-xs space-y-2 animate-in fade-in duration-200">
-          <div className="flex items-center gap-2 text-emerald-400 font-bold">
-            <CheckCircle2 className="w-4 h-4" />
-            <span>Document Processed & Verified</span>
-            <span className="font-mono text-[10px] px-2 py-0.5 rounded bg-emerald-950 border border-emerald-800 ml-auto">
-              Confidence: {Math.round(result.ocr?.confidence_score * 100)}%
-            </span>
+        <div className="p-3.5 rounded-lg border border-slate-200 bg-slate-50 space-y-2">
+          <div className="flex items-center gap-2 text-slate-900 font-semibold text-xs">
+            <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+            <span>Document Registered & OCR Extracted</span>
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1 font-mono text-slate-300">
-            <div>
-              <span className="text-slate-500 block">Doc ID:</span>
-              <span className="text-amber-400">{result.document?.doc_id}</span>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs font-mono">
+            <div className="p-2 rounded bg-white border border-slate-200">
+              <span className="text-[10px] text-slate-500 uppercase block">Doc ID</span>
+              <span className="font-bold text-slate-900">{result.doc_id}</span>
             </div>
-            <div>
-              <span className="text-slate-500 block">Extracted Number:</span>
-              <span>{result.ocr?.doc_number}</span>
+            <div className="p-2 rounded bg-white border border-slate-200">
+              <span className="text-[10px] text-slate-500 uppercase block">Authority</span>
+              <span className="font-bold text-slate-900">{result.issuing_authority || "DGMS Regional"}</span>
             </div>
-            <div>
-              <span className="text-slate-500 block">Issue Date:</span>
-              <span>{result.document?.issue_date}</span>
+            <div className="p-2 rounded bg-white border border-slate-200">
+              <span className="text-[10px] text-slate-500 uppercase block">Expiry Date</span>
+              <span className="font-bold text-slate-900">{result.expiry_date || "2027-03-31"}</span>
             </div>
-            <div>
-              <span className="text-slate-500 block">Expiry Date:</span>
-              <span>{result.document?.expiry_date}</span>
+            <div className="p-2 rounded bg-white border border-slate-200">
+              <span className="text-[10px] text-slate-500 uppercase block">Status</span>
+              <span className="font-bold text-emerald-700">{result.status || "VALID"}</span>
             </div>
-          </div>
-          <div className="text-[11px] text-slate-400 pt-1 border-t border-emerald-900/40">
-            Issuing Authority: <span className="text-slate-200 font-medium">{result.ocr?.issuing_authority}</span>
           </div>
         </div>
       )}

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { X, Sparkles, Send, ArrowRight, Activity, ShieldAlert, CheckCircle2 } from "lucide-react";
+import { X, Sparkles, Send, ArrowRight, ShieldCheck, CheckCircle2 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { api } from "../../services/api";
 import { CopilotResponse } from "../../types";
@@ -63,140 +63,126 @@ export const AICopilotDrawer: React.FC<AICopilotDrawerProps> = ({ isOpen, onClos
     }
   };
 
-  const suggested = user ? ROLE_PROMPTS[user.role_code] || [] : [];
+  const defaultPrompts = ROLE_PROMPTS[user?.role_code || "MINE_MANAGER"] || ROLE_PROMPTS.MINE_MANAGER;
 
   return (
-    <div className="fixed inset-0 z-50 overflow-hidden bg-black/60 backdrop-blur-sm flex justify-end">
-      <div className="w-full max-w-xl bg-[#090D15] border-l border-slate-800 h-full flex flex-col shadow-2xl animate-in slide-in-from-right duration-200">
+    <div className="fixed inset-0 z-50 overflow-hidden bg-slate-900/40 backdrop-blur-xs flex justify-end">
+      <div className="w-full max-w-lg bg-white border-l border-slate-200 h-full flex flex-col shadow-2xl animate-in slide-in-from-right duration-200">
         {/* Header */}
-        <div className="p-4 border-b border-slate-800/80 bg-[#0F1522] flex items-center justify-between">
+        <div className="p-4 border-b border-slate-200 bg-slate-50/80 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="p-1.5 rounded-md bg-amber-500/20 text-amber-400 border border-amber-500/40">
-              <Sparkles className="w-4 h-4" />
+            <div className="w-7 h-7 rounded bg-slate-900 text-white flex items-center justify-center">
+              <Sparkles className="w-3.5 h-3.5 text-amber-300" />
             </div>
             <div>
-              <h3 className="text-sm font-semibold text-slate-100 flex items-center gap-2">
-                Mining AI Copilot
-                <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-amber-950/80 text-amber-400 border border-amber-800/60 uppercase">
-                  {user?.role_code.replace("_", " ")}
-                </span>
-              </h3>
-              <p className="text-xs text-slate-400">Context-Aware Compliance & Risk Intelligence</p>
+              <h2 className="text-sm font-bold text-slate-900">
+                Statutory Intelligence Copilot
+              </h2>
+              <p className="text-[11px] text-slate-500">
+                Explainable AI risk assessments & compliance queries
+              </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition-colors"
+            className="p-1 rounded text-slate-400 hover:text-slate-600 hover:bg-slate-200 transition-colors"
           >
-            <X className="w-5 h-5" />
+            <X className="w-4 h-4" />
           </button>
         </div>
 
-        {/* Content Area */}
+        {/* Content Body */}
         <div className="flex-1 overflow-y-auto p-4 space-y-4">
-          {/* Suggested Prompts */}
+          {/* Quick Prompts */}
           <div>
-            <p className="text-xs font-medium text-slate-400 uppercase tracking-wider mb-2">
-              Suggested Contextual Inquiries
-            </p>
+            <span className="text-[10px] font-mono text-slate-500 uppercase tracking-wider block mb-2 font-semibold">
+              Statutory Inquiries for {user?.role_code?.replace("_", " ")}
+            </span>
             <div className="space-y-1.5">
-              {suggested.map((prompt, idx) => (
+              {defaultPrompts.map((p, idx) => (
                 <button
                   key={idx}
-                  onClick={() => handleAsk(prompt)}
-                  className="w-full text-left p-2 rounded border border-slate-800 bg-[#0E1420] hover:bg-[#141C2C] hover:border-slate-700 text-xs text-slate-300 transition-all flex items-center justify-between group"
+                  onClick={() => handleAsk(p)}
+                  className="w-full text-left p-2 rounded border border-slate-200 bg-slate-50 hover:bg-slate-100 hover:border-slate-300 text-xs text-slate-700 transition-colors flex items-center justify-between group"
                 >
-                  <span>{prompt}</span>
-                  <ArrowRight className="w-3.5 h-3.5 text-slate-500 group-hover:text-amber-400 transition-colors" />
+                  <span className="line-clamp-1">{p}</span>
+                  <ArrowRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-slate-700 shrink-0 ml-2" />
                 </button>
               ))}
             </div>
           </div>
 
-          {/* AI Response Card */}
+          {/* AI Response Display */}
           {loading && (
-            <div className="p-4 rounded-lg border border-slate-800 bg-[#0E1420] space-y-3 animate-pulse">
-              <div className="h-4 bg-slate-800 rounded w-3/4" />
-              <div className="h-4 bg-slate-800 rounded w-1/2" />
-              <div className="h-16 bg-slate-800/60 rounded" />
+            <div className="p-4 rounded-lg bg-slate-50 border border-slate-200 space-y-2 animate-pulse">
+              <div className="h-4 bg-slate-200 rounded w-1/3" />
+              <div className="h-3 bg-slate-200 rounded w-full" />
+              <div className="h-3 bg-slate-200 rounded w-5/6" />
             </div>
           )}
 
           {response && !loading && (
-            <div className="p-4 rounded-lg border border-slate-800 bg-[#0D131F] space-y-4 shadow-sm">
-              {/* Answer */}
+            <div className="p-4 rounded-lg bg-slate-50 border border-slate-200 space-y-3.5">
               <div>
-                <span className="text-[10px] font-mono uppercase tracking-wider text-amber-400 font-bold block mb-1">
-                  AI Assessment & Findings
+                <span className="text-[10px] font-mono font-semibold text-slate-500 uppercase tracking-wider block mb-1">
+                  Query Analysis & Findings
                 </span>
-                <p className="text-sm text-slate-200 leading-relaxed">{response.answer}</p>
+                <p className="text-xs text-slate-800 leading-relaxed font-sans">
+                  {response.answer}
+                </p>
               </div>
 
-              {/* Supporting Metrics */}
-              {Object.keys(response.supporting_metrics || {}).length > 0 && (
-                <div className="p-3 rounded bg-[#080C13] border border-slate-800/80">
-                  <span className="text-[10px] font-mono uppercase tracking-wider text-sky-400 font-bold block mb-2">
-                    Supporting Data Points
+              {/* Supporting Evidence */}
+              {response.evidence && (
+                <div className="p-2.5 rounded bg-white border border-slate-200 text-xs space-y-1">
+                  <span className="text-[10px] font-mono text-slate-500 uppercase font-semibold">
+                    Statutory Context & Ground Evidence:
                   </span>
-                  <div className="grid grid-cols-2 gap-2">
-                    {Object.entries(response.supporting_metrics).map(([k, v]) => (
-                      <div key={k} className="text-xs">
-                        <span className="text-slate-400 block capitalize">
-                          {k.replace(/_/g, " ")}:
-                        </span>
-                        <span className="font-mono font-semibold text-slate-200">{String(v)}</span>
-                      </div>
-                    ))}
-                  </div>
+                  <p className="text-slate-700">{response.evidence}</p>
+                </div>
+              )}
+
+              {/* Supporting Metrics */}
+              {response.supporting_metrics && Object.keys(response.supporting_metrics).length > 0 && (
+                <div className="grid grid-cols-2 gap-2 pt-2 border-t border-slate-200">
+                  {Object.entries(response.supporting_metrics).map(([key, val]) => (
+                    <div key={key} className="p-2 rounded bg-white border border-slate-200">
+                      <span className="text-[10px] text-slate-500 font-mono uppercase block truncate">
+                        {key.replace(/_/g, " ")}
+                      </span>
+                      <span className="text-sm font-bold font-mono text-slate-900">{String(val)}</span>
+                    </div>
+                  ))}
                 </div>
               )}
 
               {/* Affected Records */}
-              {response.affected_records?.length > 0 && (
-                <div>
-                  <span className="text-[10px] font-mono uppercase tracking-wider text-slate-400 font-bold block mb-1.5">
-                    Targeted Live Database Records
+              {response.affected_records && response.affected_records.length > 0 && (
+                <div className="pt-2 border-t border-slate-200">
+                  <span className="text-[10px] font-mono text-slate-500 uppercase font-semibold block mb-1.5">
+                    Impacted Records ({response.affected_records.length})
                   </span>
-                  <div className="space-y-1.5">
-                    {response.affected_records.map((rec, idx) => (
+                  <div className="space-y-1 max-h-36 overflow-y-auto">
+                    {response.affected_records.map((rec: any, i: number) => (
                       <div
-                        key={idx}
-                        className="p-2 rounded bg-[#0A0E17] border border-slate-800 text-xs flex items-center justify-between"
+                        key={i}
+                        className="p-1.5 rounded bg-white border border-slate-200 text-[11px] flex items-center justify-between"
                       >
-                        <div>
-                          <span className="font-mono font-semibold text-amber-400 mr-2">
-                            {rec.id}
-                          </span>
-                          <span className="text-slate-300">{rec.title}</span>
-                        </div>
-                        {rec.status && (
-                          <span className="px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 font-mono text-[10px]">
-                            {rec.status}
-                          </span>
-                        )}
+                        <span className="font-mono text-slate-800 font-medium">
+                          {rec.code || rec.id || rec.name || `Record #${i + 1}`}
+                        </span>
+                        <span className="text-slate-500">{rec.type || rec.status || ""}</span>
                       </div>
                     ))}
                   </div>
                 </div>
               )}
-
-              {/* Trend & Audit Evidence */}
-              <div className="pt-2 border-t border-slate-800/80 text-xs space-y-1 text-slate-400">
-                <div className="flex items-center gap-1.5 text-amber-400/90">
-                  <Activity className="w-3.5 h-3.5" />
-                  <span>Trend: {response.trend}</span>
-                </div>
-                <div className="flex items-center gap-1.5 text-emerald-400/90 font-mono text-[11px]">
-                  <CheckCircle2 className="w-3.5 h-3.5" />
-                  <span>Evidence: {response.evidence}</span>
-                </div>
-              </div>
             </div>
           )}
         </div>
 
-        {/* Query Input Bar */}
-        <div className="p-3 border-t border-slate-800 bg-[#0F1522]">
+        {/* Input Bar */}
+        <div className="p-3 border-t border-slate-200 bg-white">
           <form
             onSubmit={(e) => {
               e.preventDefault();
@@ -206,18 +192,17 @@ export const AICopilotDrawer: React.FC<AICopilotDrawerProps> = ({ isOpen, onClos
           >
             <input
               type="text"
-              placeholder={`Ask AI Copilot (${user?.role_code.toLowerCase()})...`}
+              placeholder="Ask statutory risk & compliance questions..."
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              className="flex-1 px-3 py-2 bg-[#080C13] border border-slate-700/80 rounded-lg text-xs text-slate-100 focus:outline-none focus:border-amber-500 transition-colors"
+              className="flex-1 px-3 py-2 bg-slate-50 border border-slate-300 rounded-md text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:bg-white focus:border-slate-800 transition-colors"
             />
             <button
               type="submit"
               disabled={loading || !query.trim()}
-              className="px-3 py-2 bg-amber-600 hover:bg-amber-500 disabled:opacity-50 text-black font-semibold rounded-lg text-xs transition-colors flex items-center gap-1.5 shadow-sm"
+              className="p-2 rounded-md bg-slate-900 hover:bg-black disabled:opacity-40 text-white transition-colors"
             >
-              <Send className="w-3.5 h-3.5" />
-              <span>Ask</span>
+              <Send className="w-4 h-4" />
             </button>
           </form>
         </div>

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { ShieldCheck, HardHat, Building, Landmark, Lock, ArrowRight, Layers, AlertCircle } from "lucide-react";
+import { ShieldCheck, HardHat, Building, Landmark, Lock, Layers, AlertCircle } from "lucide-react";
 import { useAuth, DEMO_CREDENTIALS } from "../../context/AuthContext";
 import { RoleCode } from "../../types";
 
@@ -30,37 +30,34 @@ export const Login: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#06090F] flex flex-col justify-center items-center p-4 relative overflow-hidden">
-      {/* Subtle industrial background grid */}
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,#141B2B_1px,transparent_1px),linear-gradient(to_bottom,#141B2B_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] opacity-30" />
-
-      <div className="w-full max-w-md z-10 space-y-6">
+    <div className="min-h-screen bg-[#F8FAFC] flex flex-col justify-center items-center p-4 relative">
+      <div className="w-full max-w-md z-10 space-y-5">
         {/* Brand Header */}
-        <div className="text-center space-y-2">
-          <div className="inline-flex items-center justify-center p-3 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-500 mb-2 shadow-lg">
-            <Layers className="w-8 h-8" />
+        <div className="text-center space-y-1.5">
+          <div className="inline-flex items-center justify-center p-2.5 rounded-lg bg-slate-900 text-white mb-1 shadow-xs">
+            <Layers className="w-6 h-6" />
           </div>
-          <h1 className="text-xl font-bold font-mono tracking-tight text-slate-100 uppercase">
+          <h1 className="text-lg font-bold font-mono tracking-tight text-slate-900 uppercase">
             SIH26024 // Smart Governance & Compliance
           </h1>
-          <p className="text-xs text-slate-400 max-w-sm mx-auto">
+          <p className="text-xs text-slate-500 max-w-sm mx-auto">
             AI-Driven Mining Operations Command Center & Regulatory Oversight Platform
           </p>
         </div>
 
         {/* Login Card */}
-        <div className="p-6 rounded-2xl border border-slate-800 bg-[#0B0F17]/90 backdrop-blur-xl shadow-2xl space-y-5">
+        <div className="p-6 rounded-xl border border-slate-200 bg-white shadow-xs space-y-4">
           {error && (
-            <div className="p-3 rounded-lg border border-red-800/80 bg-red-950/40 text-red-300 text-xs flex items-center gap-2">
-              <AlertCircle className="w-4 h-4 shrink-0 text-red-400" />
+            <div className="p-3 rounded-md border border-red-200 bg-red-50 text-red-800 text-xs flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 shrink-0 text-red-600" />
               <span>{error}</span>
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-3.5">
             <div>
-              <label className="text-xs font-semibold text-slate-300 block mb-1">
-                Official Government / Enterprise Email
+              <label className="text-xs font-semibold text-slate-700 block mb-1">
+                Official Enterprise / Government Email
               </label>
               <input
                 type="text"
@@ -68,12 +65,12 @@ export const Login: React.FC = () => {
                 placeholder="name@bharatcoal.in"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-3.5 py-2.5 bg-[#080C13] border border-slate-700/80 rounded-lg text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-amber-500 transition-colors"
+                className="w-full px-3 py-2 bg-white border border-slate-300 rounded text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-slate-800 transition-colors"
               />
             </div>
 
             <div>
-              <label className="text-xs font-semibold text-slate-300 block mb-1">
+              <label className="text-xs font-semibold text-slate-700 block mb-1">
                 Security Password
               </label>
               <input
@@ -82,14 +79,14 @@ export const Login: React.FC = () => {
                 placeholder="••••••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-3.5 py-2.5 bg-[#080C13] border border-slate-700/80 rounded-lg text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-amber-500 transition-colors"
+                className="w-full px-3 py-2 bg-white border border-slate-300 rounded text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-slate-800 transition-colors"
               />
             </div>
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-2.5 rounded-lg bg-amber-600 hover:bg-amber-500 disabled:opacity-50 text-black font-bold text-xs uppercase tracking-wider transition-colors flex items-center justify-center gap-2 shadow-lg shadow-amber-600/20"
+              className="w-full py-2.5 rounded bg-slate-900 hover:bg-black disabled:opacity-50 text-white font-medium text-xs transition-colors flex items-center justify-center gap-2 shadow-xs"
             >
               <Lock className="w-3.5 h-3.5" />
               <span>{loading ? "Authenticating Session..." : "Sign In to Operations Portal"}</span>
@@ -97,20 +94,20 @@ export const Login: React.FC = () => {
           </form>
 
           {/* Instant Demo Accounts Switcher */}
-          <div className="pt-4 border-t border-slate-800/80 space-y-2.5">
-            <div className="flex items-center justify-between text-[11px] font-mono text-slate-400">
-              <span>DEMO EVALUATION ROLES</span>
-              <span className="text-amber-400 font-semibold">CLICK TO PRE-FILL</span>
+          <div className="pt-3.5 border-t border-slate-200 space-y-2">
+            <div className="flex items-center justify-between text-[11px] font-mono text-slate-500">
+              <span className="font-semibold uppercase tracking-wider">Demo Evaluation Roles</span>
+              <span className="text-slate-700 font-medium">Click to fill</span>
             </div>
 
             <div className="grid grid-cols-2 gap-2 text-xs">
               <button
                 type="button"
                 onClick={() => handleDemoClick("FIELD_SUPERVISOR")}
-                className="p-2.5 rounded-lg border border-slate-800 bg-[#0E1420] hover:bg-[#151F30] hover:border-amber-500/50 text-left transition-all group"
+                className="p-2 rounded border border-slate-200 bg-slate-50 hover:bg-slate-100 hover:border-slate-300 text-left transition-colors"
               >
-                <div className="flex items-center gap-1.5 text-amber-400 font-semibold mb-0.5">
-                  <HardHat className="w-3.5 h-3.5" />
+                <div className="flex items-center gap-1.5 text-slate-800 font-semibold mb-0.5">
+                  <HardHat className="w-3.5 h-3.5 text-amber-600" />
                   <span>Field Supervisor</span>
                 </div>
                 <div className="text-[10px] text-slate-500 font-mono truncate">supervisor@bharatcoal.in</div>
@@ -119,10 +116,10 @@ export const Login: React.FC = () => {
               <button
                 type="button"
                 onClick={() => handleDemoClick("MINE_MANAGER")}
-                className="p-2.5 rounded-lg border border-slate-800 bg-[#0E1420] hover:bg-[#151F30] hover:border-amber-500/50 text-left transition-all group"
+                className="p-2 rounded border border-slate-200 bg-slate-50 hover:bg-slate-100 hover:border-slate-300 text-left transition-colors"
               >
-                <div className="flex items-center gap-1.5 text-sky-400 font-semibold mb-0.5">
-                  <ShieldCheck className="w-3.5 h-3.5" />
+                <div className="flex items-center gap-1.5 text-slate-800 font-semibold mb-0.5">
+                  <ShieldCheck className="w-3.5 h-3.5 text-blue-600" />
                   <span>Mine Manager</span>
                 </div>
                 <div className="text-[10px] text-slate-500 font-mono truncate">manager@bharatcoal.in</div>
@@ -131,10 +128,10 @@ export const Login: React.FC = () => {
               <button
                 type="button"
                 onClick={() => handleDemoClick("CORPORATE_EXECUTIVE")}
-                className="p-2.5 rounded-lg border border-slate-800 bg-[#0E1420] hover:bg-[#151F30] hover:border-amber-500/50 text-left transition-all group"
+                className="p-2 rounded border border-slate-200 bg-slate-50 hover:bg-slate-100 hover:border-slate-300 text-left transition-colors"
               >
-                <div className="flex items-center gap-1.5 text-emerald-400 font-semibold mb-0.5">
-                  <Building className="w-3.5 h-3.5" />
+                <div className="flex items-center gap-1.5 text-slate-800 font-semibold mb-0.5">
+                  <Building className="w-3.5 h-3.5 text-emerald-600" />
                   <span>Corporate Exec</span>
                 </div>
                 <div className="text-[10px] text-slate-500 font-mono truncate">executive@bharatcoal.in</div>
@@ -143,10 +140,10 @@ export const Login: React.FC = () => {
               <button
                 type="button"
                 onClick={() => handleDemoClick("GOVERNMENT_REGULATOR")}
-                className="p-2.5 rounded-lg border border-slate-800 bg-[#0E1420] hover:bg-[#151F30] hover:border-amber-500/50 text-left transition-all group"
+                className="p-2 rounded border border-slate-200 bg-slate-50 hover:bg-slate-100 hover:border-slate-300 text-left transition-colors"
               >
-                <div className="flex items-center gap-1.5 text-red-400 font-semibold mb-0.5">
-                  <Landmark className="w-3.5 h-3.5" />
+                <div className="flex items-center gap-1.5 text-slate-800 font-semibold mb-0.5">
+                  <Landmark className="w-3.5 h-3.5 text-red-600" />
                   <span>DGMS Regulator</span>
                 </div>
                 <div className="text-[10px] text-slate-500 font-mono truncate">regulator@gov.in</div>
@@ -156,8 +153,8 @@ export const Login: React.FC = () => {
         </div>
 
         {/* Security / Audit Guarantee Footer */}
-        <div className="text-center text-[11px] font-mono text-slate-500 flex items-center justify-center gap-2">
-          <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
+        <div className="text-center text-[11px] font-mono text-slate-500 flex items-center justify-center gap-1.5">
+          <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
           <span>Cryptographic SHA-256 Chained Audit Trail Active</span>
         </div>
       </div>

@@ -92,17 +92,17 @@ export const GovernmentRegulatoryActions: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 pb-4">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-xl font-bold font-mono text-slate-100 uppercase tracking-tight">
+            <h1 className="text-xl font-bold text-slate-900 tracking-tight">
               Statutory Directives & Enforcement Orders
             </h1>
-            <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-red-500/20 text-red-400 border border-red-500/30">
-              DGMS POWERS (SEC 22)
+            <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-700 border border-slate-200 uppercase tracking-wider">
+              DGMS Powers (Sec 22)
             </span>
           </div>
-          <p className="text-xs text-slate-400 mt-1">
+          <p className="text-xs text-slate-500 mt-1">
             Issue formal regulatory directions, stop-work notices, and statutory compliance orders directly enforceable under the Mines Act.
           </p>
         </div>
@@ -110,7 +110,7 @@ export const GovernmentRegulatoryActions: React.FC = () => {
         <div className="flex items-center gap-2">
           <button
             onClick={fetchActions}
-            className="p-2 rounded bg-[#101726] border border-slate-800 text-slate-300 hover:text-amber-400 transition-colors"
+            className="p-2 rounded-lg bg-white border border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-colors shadow-xs"
             title="Refresh"
           >
             <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
@@ -118,7 +118,7 @@ export const GovernmentRegulatoryActions: React.FC = () => {
 
           <button
             onClick={() => setShowIssueModal(true)}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-red-600 hover:bg-red-500 text-white font-semibold text-xs transition-colors shadow-sm"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-rose-700 hover:bg-rose-800 text-white font-semibold text-xs transition-colors shadow-xs"
           >
             <Plus className="w-4 h-4" />
             <span>Issue Statutory Directive</span>
@@ -127,30 +127,30 @@ export const GovernmentRegulatoryActions: React.FC = () => {
       </div>
 
       {/* Regulatory Actions List */}
-      <div className="rounded-lg border border-slate-800 bg-[#0B0F19] p-4">
+      <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-xs">
         <DataTable
           columns={[
             {
               header: "Directive ID",
               accessor: (row: any) => (
                 <div>
-                  <span className="font-mono font-bold text-red-400 text-xs">{row.action_id}</span>
-                  <div className="text-[10px] font-mono text-slate-400">{row.action_type}</div>
+                  <span className="font-mono font-bold text-slate-900 text-xs">{row.action_id}</span>
+                  <div className="text-[10px] font-mono text-slate-500">{row.action_type}</div>
                 </div>
               ),
             },
             {
               header: "Target Mine",
               accessor: (row: any) => (
-                <span className="font-mono text-xs text-slate-200">Mine ID: {row.mine_id}</span>
+                <span className="font-mono text-xs text-slate-700">Mine ID: {row.mine_id}</span>
               ),
             },
             {
               header: "Statutory Order Details",
               accessor: (row: any) => (
                 <div className="max-w-md">
-                  <div className="text-xs text-slate-200 font-medium line-clamp-2">{row.description}</div>
-                  <div className="text-[10px] text-slate-400 font-mono mt-0.5">
+                  <div className="text-xs text-slate-800 font-medium line-clamp-2">{row.description}</div>
+                  <div className="text-[11px] text-slate-500 font-mono mt-0.5">
                     Required: {row.required_evidence}
                   </div>
                 </div>
@@ -166,11 +166,11 @@ export const GovernmentRegulatoryActions: React.FC = () => {
                 const isOverdue = new Date(row.deadline) < new Date() && row.status !== "CLOSED";
                 return (
                   <div className="font-mono text-xs">
-                    <span className={isOverdue ? "text-red-400 font-bold" : "text-slate-300"}>
+                    <span className={isOverdue ? "text-rose-700 font-bold" : "text-slate-700"}>
                       {row.deadline}
                     </span>
                     {isOverdue && (
-                      <span className="block text-[9px] text-red-400 font-bold uppercase">
+                      <span className="block text-[10px] text-rose-700 font-bold uppercase tracking-wider">
                         EXPIRED
                       </span>
                     )}
@@ -187,7 +187,7 @@ export const GovernmentRegulatoryActions: React.FC = () => {
                       setVerifyTarget(row);
                       setVerifyRemarks("");
                     }}
-                    className="px-2 py-1 rounded bg-[#101726] border border-slate-700 hover:border-slate-500 text-[11px] font-mono text-slate-200"
+                    className="px-2.5 py-1 rounded-md bg-white border border-slate-200 hover:bg-slate-50 text-xs font-semibold text-slate-700 transition-colors shadow-xs"
                   >
                     Verify
                   </button>
@@ -202,27 +202,27 @@ export const GovernmentRegulatoryActions: React.FC = () => {
 
       {/* Issue Modal */}
       {showIssueModal && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-[#0B0F19] border border-slate-700 rounded-xl w-full max-w-lg p-6 shadow-2xl space-y-4">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-              <h3 className="font-mono font-bold text-sm text-slate-100 uppercase">
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white border border-slate-200 rounded-xl w-full max-w-lg p-6 shadow-2xl space-y-4">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <h3 className="font-bold text-sm text-slate-900 uppercase tracking-tight">
                 Issue Statutory Regulatory Directive (DGMS)
               </h3>
               <button
                 onClick={() => setShowIssueModal(false)}
-                className="text-slate-400 hover:text-slate-200 text-xs font-mono"
+                className="text-slate-400 hover:text-slate-700 text-xs font-mono"
               >
                 [CLOSE]
               </button>
             </div>
 
-            <form onSubmit={handleIssue} className="space-y-3 text-xs">
+            <form onSubmit={handleIssue} className="space-y-3.5 text-xs">
               <div>
-                <label className="block text-slate-300 mb-1 font-mono">Target Mine Operation</label>
+                <label className="block text-slate-700 mb-1 font-semibold">Target Mine Operation</label>
                 <select
                   value={form.mine_id}
                   onChange={(e) => setForm({ ...form, mine_id: parseInt(e.target.value) })}
-                  className="w-full px-3 py-2 bg-[#101726] border border-slate-700 rounded text-slate-200 focus:outline-none focus:border-red-500 font-mono"
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-900 focus:outline-none focus:ring-1 focus:ring-rose-600 focus:bg-white text-xs"
                 >
                   <option value={1}>Jharia Open Cast Pit 04 (JHA-OCP-04)</option>
                   <option value={2}>Raniganj Deep Underground Block A (RAN-UG-01)</option>
@@ -234,11 +234,11 @@ export const GovernmentRegulatoryActions: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-slate-300 mb-1 font-mono">Statutory Order Type</label>
+                <label className="block text-slate-700 mb-1 font-semibold">Statutory Order Type</label>
                 <select
                   value={form.action_type}
                   onChange={(e) => setForm({ ...form, action_type: e.target.value })}
-                  className="w-full px-3 py-2 bg-[#101726] border border-slate-700 rounded text-slate-200 focus:outline-none focus:border-red-500 font-mono"
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-900 focus:outline-none focus:ring-1 focus:ring-rose-600 focus:bg-white text-xs"
                 >
                   <option value="REGULATORY_DIRECTION">REGULATORY DIRECTION (Sec 22/1)</option>
                   <option value="PROHIBITION_ORDER">PROHIBITION ORDER / STOP WORK (Sec 22/3)</option>
@@ -248,51 +248,51 @@ export const GovernmentRegulatoryActions: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-slate-300 mb-1 font-mono">Order Content & Mandatory Rectification</label>
+                <label className="block text-slate-700 mb-1 font-semibold">Order Content & Mandatory Rectification</label>
                 <textarea
                   required
                   rows={3}
                   placeholder="Specify statutory provisions violated and mandatory steps to be enforced immediately..."
                   value={form.description}
                   onChange={(e) => setForm({ ...form, description: e.target.value })}
-                  className="w-full px-3 py-2 bg-[#101726] border border-slate-700 rounded text-slate-200 focus:outline-none focus:border-red-500 font-sans"
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-900 focus:outline-none focus:ring-1 focus:ring-rose-600 focus:bg-white text-xs"
                 />
               </div>
 
               <div>
-                <label className="block text-slate-300 mb-1 font-mono">Required Evidence for Closure</label>
+                <label className="block text-slate-700 mb-1 font-semibold">Required Evidence for Closure</label>
                 <input
                   type="text"
                   required
                   value={form.required_evidence}
                   onChange={(e) => setForm({ ...form, required_evidence: e.target.value })}
-                  className="w-full px-3 py-2 bg-[#101726] border border-slate-700 rounded text-slate-200 focus:outline-none focus:border-red-500 font-sans"
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-900 focus:outline-none focus:ring-1 focus:ring-rose-600 focus:bg-white text-xs"
                 />
               </div>
 
               <div>
-                <label className="block text-slate-300 mb-1 font-mono">Compliance Deadline</label>
+                <label className="block text-slate-700 mb-1 font-semibold">Compliance Deadline</label>
                 <input
                   type="date"
                   required
                   value={form.deadline}
                   onChange={(e) => setForm({ ...form, deadline: e.target.value })}
-                  className="w-full px-3 py-2 bg-[#101726] border border-slate-700 rounded text-slate-200 focus:outline-none focus:border-red-500 font-mono"
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-900 focus:outline-none focus:ring-1 focus:ring-rose-600 focus:bg-white text-xs"
                 />
               </div>
 
-              <div className="pt-3 border-t border-slate-800 flex justify-end gap-2">
+              <div className="pt-3 border-t border-slate-100 flex justify-end gap-2">
                 <button
                   type="button"
                   onClick={() => setShowIssueModal(false)}
-                  className="px-4 py-2 rounded bg-slate-800 text-slate-300 hover:bg-slate-700 font-mono"
+                  className="px-4 py-2 rounded-lg bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 font-semibold text-xs"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={submittingIssue}
-                  className="px-4 py-2 rounded bg-red-600 hover:bg-red-500 text-white font-bold font-mono"
+                  className="px-4 py-2 rounded-lg bg-rose-700 hover:bg-rose-800 text-white font-semibold text-xs shadow-xs"
                 >
                   {submittingIssue ? "Transmitting Order..." : "Issue Statutory Order"}
                 </button>
@@ -304,58 +304,58 @@ export const GovernmentRegulatoryActions: React.FC = () => {
 
       {/* Action Verification Modal */}
       {verifyTarget && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-[#0B0F19] border border-slate-700 rounded-xl w-full max-w-lg p-6 shadow-2xl space-y-4">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-              <h3 className="font-mono font-bold text-sm text-slate-100 uppercase">
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white border border-slate-200 rounded-xl w-full max-w-lg p-6 shadow-2xl space-y-4">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <h3 className="font-bold text-sm text-slate-900 uppercase tracking-tight">
                 Statutory Action Verification & Review
               </h3>
               <button
                 onClick={() => setVerifyTarget(null)}
-                className="text-slate-400 hover:text-slate-200 text-xs font-mono"
+                className="text-slate-400 hover:text-slate-700 text-xs font-mono"
               >
                 [CLOSE]
               </button>
             </div>
 
-            <div className="space-y-3 text-xs">
-              <div className="p-3 rounded bg-[#101726] border border-slate-800">
+            <div className="space-y-3.5 text-xs">
+              <div className="p-3.5 rounded-lg bg-slate-50 border border-slate-200">
                 <div className="flex items-center justify-between">
-                  <span className="font-mono font-bold text-amber-400">{verifyTarget.action_id}</span>
+                  <span className="font-mono font-bold text-slate-900">{verifyTarget.action_id}</span>
                   <StatusBadge status={verifyTarget.status} />
                 </div>
-                <div className="text-slate-200 mt-1">{verifyTarget.description}</div>
-                <div className="text-[11px] text-slate-400 font-mono mt-1">
+                <div className="text-slate-800 mt-1 text-xs">{verifyTarget.description}</div>
+                <div className="text-[11px] text-slate-500 font-mono mt-1">
                   Required: {verifyTarget.required_evidence}
                 </div>
               </div>
 
               <div>
-                <label className="block text-slate-300 mb-1 font-mono">Regulator Evaluation & Remarks</label>
+                <label className="block text-slate-700 mb-1 font-semibold">Regulator Evaluation & Remarks</label>
                 <textarea
                   rows={3}
                   placeholder="Record formal statutory findings, sensor confirmation, or reasons for rejection..."
                   value={verifyRemarks}
                   onChange={(e) => setVerifyRemarks(e.target.value)}
-                  className="w-full px-3 py-2 bg-[#101726] border border-slate-700 rounded text-slate-200 focus:outline-none focus:border-emerald-500 font-sans"
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-900 focus:outline-none focus:ring-1 focus:ring-slate-900 focus:bg-white text-xs"
                 />
               </div>
 
-              <div className="pt-3 border-t border-slate-800 flex justify-end gap-2">
+              <div className="pt-3 border-t border-slate-100 flex justify-end gap-2">
                 <button
                   type="button"
                   disabled={submittingVerify}
                   onClick={() => handleVerify("RETURNED_FOR_CORRECTION")}
-                  className="px-4 py-2 rounded bg-amber-950/80 border border-amber-800 text-amber-300 hover:bg-amber-900 font-mono flex items-center gap-1.5"
+                  className="px-4 py-2 rounded-lg bg-white border border-amber-300 text-amber-800 hover:bg-amber-50 font-semibold text-xs flex items-center gap-1.5 shadow-xs"
                 >
-                  <XCircle className="w-4 h-4" />
+                  <XCircle className="w-4 h-4 text-amber-600" />
                   <span>Return for Correction</span>
                 </button>
                 <button
                   type="button"
                   disabled={submittingVerify}
                   onClick={() => handleVerify("ACCEPTED")}
-                  className="px-4 py-2 rounded bg-emerald-600 hover:bg-emerald-500 text-slate-950 font-bold font-mono flex items-center gap-1.5"
+                  className="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs flex items-center gap-1.5 shadow-xs"
                 >
                   <CheckCircle2 className="w-4 h-4" />
                   <span>Accept & Close Directive</span>

@@ -134,7 +134,7 @@ const MainLayout: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#060911] text-slate-100 flex flex-col antialiased">
+    <div className="min-h-screen bg-[#F8FAFC] text-slate-900 flex flex-col antialiased">
       {/* Top Universal Command Header */}
       <Header
         onOpenCopilot={() => setCopilotOpen(true)}

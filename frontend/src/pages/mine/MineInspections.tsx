@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { ClipboardCheck, Plus, UserCheck, Calendar, AlertTriangle, CheckCircle2 } from "lucide-react";
+import { ClipboardCheck, Plus } from "lucide-react";
 import { api } from "../../services/api";
 import { Inspection } from "../../types";
 import { StatusBadge } from "../../components/common/StatusBadge";
@@ -61,12 +61,15 @@ export const MineInspections: React.FC = () => {
       header: "Inspection ID",
       accessor: "inspection_id" as keyof Inspection,
       render: (row: Inspection) => (
-        <span className="font-mono font-bold text-amber-400">{row.inspection_id}</span>
+        <span className="font-mono font-semibold text-slate-900">{row.inspection_id}</span>
       ),
     },
     {
       header: "Type",
       accessor: "inspection_type" as keyof Inspection,
+      render: (row: Inspection) => (
+        <span className="font-medium text-slate-800">{row.inspection_type}</span>
+      ),
     },
     {
       header: "Priority",
@@ -76,7 +79,7 @@ export const MineInspections: React.FC = () => {
     {
       header: "Scheduled Date",
       accessor: "scheduled_date" as keyof Inspection,
-      render: (row: Inspection) => <span className="font-mono">{row.scheduled_date}</span>,
+      render: (row: Inspection) => <span className="font-mono text-slate-700">{row.scheduled_date}</span>,
     },
     {
       header: "Status",
@@ -85,29 +88,29 @@ export const MineInspections: React.FC = () => {
     },
     {
       header: "Assigned Role",
-      render: () => <span className="font-mono text-slate-300">FIELD_SUPERVISOR</span>,
+      render: () => <span className="font-mono text-slate-600">FIELD_SUPERVISOR</span>,
     },
   ];
 
   return (
     <div className="p-4 sm:p-6 space-y-6 max-w-7xl mx-auto">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-800">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-200">
         <div>
-          <span className="text-[10px] font-mono text-amber-500 uppercase tracking-widest font-bold">
+          <span className="text-[10px] font-mono text-slate-500 uppercase tracking-widest font-semibold">
             STATUTORY INSPECTION MANAGEMENT
           </span>
-          <h1 className="text-xl sm:text-2xl font-bold font-mono text-slate-100 mt-0.5">
+          <h1 className="text-xl sm:text-2xl font-bold font-mono text-slate-900 mt-0.5">
             Mine Inspections & Protocols
           </h1>
-          <p className="text-xs text-slate-400 mt-1">
+          <p className="text-xs text-slate-600 mt-1">
             Create, schedule, assign, and audit ground compliance checklists
           </p>
         </div>
 
         <button
           onClick={() => setShowCreateModal(true)}
-          className="px-4 py-2 rounded-lg bg-amber-600 hover:bg-amber-500 text-black font-bold text-xs transition-colors flex items-center gap-1.5 shadow-md shadow-amber-600/20"
+          className="px-4 py-2 rounded-md bg-slate-900 hover:bg-black text-white font-medium text-xs transition-colors flex items-center gap-1.5 shadow-xs"
         >
           <Plus className="w-4 h-4" />
           <span>Schedule New Inspection</span>
@@ -115,9 +118,9 @@ export const MineInspections: React.FC = () => {
       </div>
 
       {successMsg && (
-        <div className="p-3 rounded-lg border border-emerald-800/80 bg-emerald-950/40 text-emerald-300 text-xs flex items-center justify-between">
+        <div className="p-3 rounded-md border border-emerald-200 bg-emerald-50 text-emerald-900 text-xs flex items-center justify-between">
           <span>{successMsg}</span>
-          <button onClick={() => setSuccessMsg(null)} className="font-mono text-emerald-400 font-bold ml-4">
+          <button onClick={() => setSuccessMsg(null)} className="font-mono text-emerald-700 font-bold ml-4">
             DISMISS
           </button>
         </div>
@@ -134,21 +137,21 @@ export const MineInspections: React.FC = () => {
 
       {/* Schedule Inspection Modal */}
       {showCreateModal && (
-        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="w-full max-w-lg bg-[#090D15] border border-slate-800 rounded-xl p-5 shadow-2xl space-y-4">
-            <h3 className="text-sm font-bold font-mono text-slate-100 flex items-center gap-2">
-              <ClipboardCheck className="w-4 h-4 text-amber-400" />
+        <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="w-full max-w-lg bg-white border border-slate-200 rounded-xl p-5 shadow-2xl space-y-4">
+            <h3 className="text-sm font-bold font-mono text-slate-900 flex items-center gap-2">
+              <ClipboardCheck className="w-4 h-4 text-slate-800" />
               <span>Schedule Statutory Inspection</span>
             </h3>
 
             <form onSubmit={handleCreateInspection} className="space-y-3 text-xs">
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-slate-300 font-semibold block mb-1">Inspection Type</label>
+                  <label className="text-slate-700 font-semibold block mb-1">Inspection Type</label>
                   <select
                     value={type}
                     onChange={(e) => setType(e.target.value)}
-                    className="w-full p-2 bg-[#080C13] border border-slate-700 rounded text-slate-100"
+                    className="w-full p-2 bg-white border border-slate-300 rounded text-slate-900"
                   >
                     <option value="SAFETY">General Safety</option>
                     <option value="PPE">PPE Protocols</option>
@@ -161,11 +164,11 @@ export const MineInspections: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="text-slate-300 font-semibold block mb-1">Priority</label>
+                  <label className="text-slate-700 font-semibold block mb-1">Priority</label>
                   <select
                     value={priority}
                     onChange={(e) => setPriority(e.target.value)}
-                    className="w-full p-2 bg-[#080C13] border border-slate-700 rounded text-slate-100"
+                    className="w-full p-2 bg-white border border-slate-300 rounded text-slate-900"
                   >
                     <option value="LOW">LOW</option>
                     <option value="MEDIUM">MEDIUM</option>
@@ -176,18 +179,18 @@ export const MineInspections: React.FC = () => {
               </div>
 
               <div>
-                <label className="text-slate-300 font-semibold block mb-1">Scheduled Date *</label>
+                <label className="text-slate-700 font-semibold block mb-1">Scheduled Date *</label>
                 <input
                   type="date"
                   required
                   value={scheduledDate}
                   onChange={(e) => setScheduledDate(e.target.value)}
-                  className="w-full p-2 bg-[#080C13] border border-slate-700 rounded text-slate-100"
+                  className="w-full p-2 bg-white border border-slate-300 rounded text-slate-900"
                 />
               </div>
 
               <div>
-                <label className="text-slate-300 font-semibold block mb-1">
+                <label className="text-slate-700 font-semibold block mb-1">
                   Instructions for Assigned Supervisor *
                 </label>
                 <textarea
@@ -196,7 +199,7 @@ export const MineInspections: React.FC = () => {
                   placeholder="Specific focus areas, equipment tag numbers, or regulatory directives..."
                   value={instructions}
                   onChange={(e) => setInstructions(e.target.value)}
-                  className="w-full p-2 bg-[#080C13] border border-slate-700 rounded text-slate-100"
+                  className="w-full p-2 bg-white border border-slate-300 rounded text-slate-900"
                 />
               </div>
 
@@ -204,14 +207,14 @@ export const MineInspections: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setShowCreateModal(false)}
-                  className="px-3 py-1.5 rounded bg-slate-800 text-slate-300"
+                  className="px-3 py-1.5 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="px-4 py-1.5 rounded bg-amber-600 hover:bg-amber-500 font-bold text-black"
+                  className="px-4 py-1.5 rounded bg-slate-900 hover:bg-black font-medium text-white shadow-xs"
                 >
                   {submitting ? "Assigning..." : "Assign to Field"}
                 </button>

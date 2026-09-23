@@ -2,89 +2,80 @@
 @import "tailwindcss";
 
 :root {
-  color-scheme: dark;
+  color-scheme: light;
 }
 
 body {
   margin: 0;
-  background-color: #070B11;
-  color: #F1F5F9;
+  background-color: #F8FAFC;
+  color: #0F172A;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
 }
 
-/* Custom modern enterprise scrollbars */
+/* Custom enterprise clean scrollbars */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #0B0F17;
+  background: #F1F5F9;
 }
 ::-webkit-scrollbar-thumb {
-  background: #1E293B;
+  background: #CBD5E1;
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #334155;
+  background: #94A3B8;
 }
 
-/* Table density styling */
+/* Clean Enterprise Table Styling */
 .enterprise-table {
   width: 100%;
   border-collapse: separate;
   border-spacing: 0;
 }
 .enterprise-table th {
-  background-color: #0F172A;
-  color: #94A3B8;
-  font-size: 0.75rem;
+  background-color: #F8FAFC;
+  color: #475569;
+  font-size: 0.72rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  padding: 0.75rem 1rem;
-  border-bottom: 1px solid #1E293B;
+  padding: 0.7rem 1rem;
+  border-bottom: 1px solid #E2E8F0;
   text-align: left;
 }
 .enterprise-table td {
-  padding: 0.8rem 1rem;
-  font-size: 0.875rem;
-  border-bottom: 1px solid #141E2F;
-  color: #E2E8F0;
+  padding: 0.75rem 1rem;
+  font-size: 0.8125rem;
+  border-bottom: 1px solid #F1F5F9;
+  color: #1E293B;
 }
 .enterprise-table tr:hover td {
-  background-color: #111A29;
+  background-color: #F8FAFC;
 }
 
-/* Status badges */
+/* Status badge utilities */
 .badge-critical {
-  background-color: rgba(239, 68, 68, 0.15);
-  color: #F87171;
-  border: 1px solid rgba(239, 68, 68, 0.3);
+  background-color: #FEF2F2;
+  color: #B91C1C;
+  border: 1px solid #FECACA;
 }
 .badge-high {
-  background-color: rgba(245, 158, 11, 0.15);
-  color: #FBBF24;
-  border: 1px solid rgba(245, 158, 11, 0.3);
+  background-color: #FFFBEB;
+  color: #B45309;
+  border: 1px solid #FDE68A;
 }
 .badge-medium {
-  background-color: rgba(56, 189, 248, 0.15);
-  color: #38BDF8;
-  border: 1px solid rgba(56, 189, 248, 0.3);
+  background-color: #F0F9FF;
+  color: #0369A1;
+  border: 1px solid #BAE6FD;
 }
 .badge-low {
-  background-color: rgba(16, 185, 129, 0.15);
-  color: #34D399;
-  border: 1px solid rgba(16, 185, 129, 0.3);
-}
-
-/* Animations */
-@keyframes pulseGlow {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.6; transform: scale(1.05); }
-}
-.pulse-glow {
-  animation: pulseGlow 2.5s infinite;
+  background-color: #F0FDF4;
+  color: #15803D;
+  border: 1px solid #BBF7D0;
 }

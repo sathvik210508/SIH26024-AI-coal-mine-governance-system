@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { TreePine, Map, AlertTriangle, ShieldCheck, Activity } from "lucide-react";
+import { TreePine, Map } from "lucide-react";
 import { api } from "../../services/api";
 import { EnvironmentalReading } from "../../types";
 import { MineGISMap } from "../../components/gis/MineGISMap";
@@ -34,7 +34,7 @@ export const MineEnvironmentGIS: React.FC = () => {
       header: "Metric",
       accessor: "metric_name" as keyof EnvironmentalReading,
       render: (row: EnvironmentalReading) => (
-        <span className="font-semibold text-slate-100">{row.metric_name}</span>
+        <span className="font-semibold text-slate-900">{row.metric_name}</span>
       ),
     },
     {
@@ -42,7 +42,7 @@ export const MineEnvironmentGIS: React.FC = () => {
       render: (row: EnvironmentalReading) => (
         <span
           className={`font-mono font-bold ${
-            row.is_breach ? "text-red-400" : "text-emerald-400"
+            row.is_breach ? "text-red-700" : "text-emerald-700"
           }`}
         >
           {row.value} {row.unit}
@@ -52,7 +52,7 @@ export const MineEnvironmentGIS: React.FC = () => {
     {
       header: "Statutory Threshold",
       render: (row: EnvironmentalReading) => (
-        <span className="font-mono text-slate-400">
+        <span className="font-mono text-slate-600">
           {row.threshold_limit} {row.unit}
         </span>
       ),
@@ -68,7 +68,7 @@ export const MineEnvironmentGIS: React.FC = () => {
       header: "Location",
       accessor: "location_details" as keyof EnvironmentalReading,
       render: (row: EnvironmentalReading) => (
-        <span className="text-xs text-slate-400">{row.location_details || "Pit Sensor"}</span>
+        <span className="text-xs text-slate-600">{row.location_details || "Pit Sensor"}</span>
       ),
     },
   ];
@@ -76,14 +76,14 @@ export const MineEnvironmentGIS: React.FC = () => {
   return (
     <div className="p-4 sm:p-6 space-y-6 max-w-7xl mx-auto">
       {/* Header */}
-      <div className="pb-4 border-b border-slate-800">
-        <span className="text-[10px] font-mono text-amber-500 uppercase tracking-widest font-bold">
+      <div className="pb-4 border-b border-slate-200">
+        <span className="text-[10px] font-mono text-slate-500 uppercase tracking-widest font-semibold">
           GIS SPATIAL & SENSOR TELEMETRY
         </span>
-        <h1 className="text-xl sm:text-2xl font-bold font-mono text-slate-100 mt-0.5">
+        <h1 className="text-xl sm:text-2xl font-bold font-mono text-slate-900 mt-0.5">
           Environmental Monitoring & Mine GIS Command
         </h1>
-        <p className="text-xs text-slate-400 mt-1">
+        <p className="text-xs text-slate-600 mt-1">
           Real-time sensor telemetry, threshold breach detection, and spatial GIS mapping
         </p>
       </div>
@@ -91,11 +91,11 @@ export const MineEnvironmentGIS: React.FC = () => {
       {/* Interactive Leaflet GIS Map */}
       <div className="space-y-3">
         <div className="flex items-center justify-between">
-          <h2 className="text-sm font-bold font-mono text-slate-200 flex items-center gap-2">
-            <Map className="w-4 h-4 text-amber-400" />
+          <h2 className="text-sm font-bold font-mono text-slate-900 flex items-center gap-2">
+            <Map className="w-4 h-4 text-slate-700" />
             <span>Operational GIS Command Map</span>
           </h2>
-          <span className="text-xs font-mono text-slate-400">
+          <span className="text-xs font-mono text-slate-500">
             Click any polygon or marker for operational details
           </span>
         </div>
@@ -103,7 +103,7 @@ export const MineEnvironmentGIS: React.FC = () => {
         {mapData ? (
           <MineGISMap data={mapData} height="500px" />
         ) : (
-          <div className="h-96 rounded-xl border border-slate-800 bg-[#0B0F17] flex items-center justify-center text-xs text-slate-500 font-mono">
+          <div className="h-96 rounded-lg border border-slate-200 bg-slate-50 flex items-center justify-center text-xs text-slate-500 font-mono">
             Loading Spatial GIS Layers...
           </div>
         )}
@@ -112,11 +112,11 @@ export const MineEnvironmentGIS: React.FC = () => {
       {/* Environmental Sensors Table */}
       <div className="space-y-3 pt-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-sm font-bold font-mono text-slate-200 flex items-center gap-2">
-            <TreePine className="w-4 h-4 text-emerald-400" />
+          <h2 className="text-sm font-bold font-mono text-slate-900 flex items-center gap-2">
+            <TreePine className="w-4 h-4 text-slate-700" />
             <span>Continuous Environmental Telemetry</span>
           </h2>
-          <span className="text-xs font-mono text-amber-400">
+          <span className="text-xs font-mono text-slate-600">
             {readings.filter((r) => r.is_breach).length} Threshold Breaches Detected
           </span>
         </div>

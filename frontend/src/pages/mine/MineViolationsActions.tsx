@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { FileWarning, CheckSquare, CheckCircle2, XCircle, ShieldCheck, Camera, Clock, ArrowRight } from "lucide-react";
+import { FileWarning, CheckSquare, CheckCircle2, XCircle, ShieldCheck, Camera } from "lucide-react";
 import { api } from "../../services/api";
 import { Violation, CorrectiveAction } from "../../types";
 import { StatusBadge } from "../../components/common/StatusBadge";
@@ -63,23 +63,24 @@ export const MineViolationsActions: React.FC = () => {
       header: "Action ID",
       accessor: "action_id" as keyof CorrectiveAction,
       render: (row: CorrectiveAction) => (
-        <span className="font-mono font-bold text-sky-400">{row.action_id}</span>
+        <span className="font-mono font-semibold text-slate-900">{row.action_id}</span>
       ),
     },
     {
       header: "Description",
       accessor: "description" as keyof CorrectiveAction,
-      render: (row: CorrectiveAction) => <span className="line-clamp-2">{row.description}</span>,
+      render: (row: CorrectiveAction) => <span className="line-clamp-2 text-slate-800">{row.description}</span>,
     },
     {
       header: "Department",
       accessor: "department" as keyof CorrectiveAction,
+      render: (row: CorrectiveAction) => <span className="text-slate-700">{row.department}</span>,
     },
     {
       header: "Deadline",
       accessor: "deadline" as keyof CorrectiveAction,
       render: (row: CorrectiveAction) => (
-        <span className={`font-mono ${row.is_overdue ? "text-red-400 font-bold" : ""}`}>
+        <span className={`font-mono ${row.is_overdue ? "text-red-600 font-bold" : "text-slate-700"}`}>
           {row.deadline}
         </span>
       ),
@@ -96,7 +97,7 @@ export const MineViolationsActions: React.FC = () => {
           return (
             <button
               onClick={() => setSelectedAction(row)}
-              className="px-2.5 py-1 rounded bg-amber-600 hover:bg-amber-500 text-black font-bold text-xs transition-colors flex items-center gap-1 shadow-sm"
+              className="px-2.5 py-1 rounded bg-slate-900 hover:bg-black text-white font-medium text-xs transition-colors flex items-center gap-1 shadow-xs"
             >
               <CheckCircle2 className="w-3.5 h-3.5" />
               <span>Review & Verify</span>
@@ -105,8 +106,8 @@ export const MineViolationsActions: React.FC = () => {
         }
         if (row.status === "CLOSED" || row.status === "VERIFIED") {
           return (
-            <span className="text-xs font-mono text-emerald-400 flex items-center gap-1">
-              <ShieldCheck className="w-3.5 h-3.5" /> Closed
+            <span className="text-xs font-mono text-emerald-700 flex items-center gap-1 font-semibold">
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" /> Closed
             </span>
           );
         }
@@ -120,12 +121,13 @@ export const MineViolationsActions: React.FC = () => {
       header: "Violation ID",
       accessor: "violation_id" as keyof Violation,
       render: (row: Violation) => (
-        <span className="font-mono font-bold text-amber-400">{row.violation_id}</span>
+        <span className="font-mono font-semibold text-slate-900">{row.violation_id}</span>
       ),
     },
     {
       header: "Category",
       accessor: "category" as keyof Violation,
+      render: (row: Violation) => <span className="text-slate-800">{row.category}</span>,
     },
     {
       header: "Severity",
@@ -135,6 +137,7 @@ export const MineViolationsActions: React.FC = () => {
     {
       header: "Department",
       accessor: "department" as keyof Violation,
+      render: (row: Violation) => <span className="text-slate-700">{row.department}</span>,
     },
     {
       header: "Status",
@@ -145,11 +148,11 @@ export const MineViolationsActions: React.FC = () => {
       header: "Recurring Pattern",
       render: (row: Violation) =>
         row.is_recurring ? (
-          <span className="px-2 py-0.5 rounded bg-red-950/80 border border-red-800 text-red-300 font-mono text-[10px] font-bold">
+          <span className="px-2 py-0.5 rounded bg-red-50 border border-red-200 text-red-700 font-mono text-[10px] font-semibold">
             RECURRING ({row.recurrence_count || 2}x)
           </span>
         ) : (
-          <span className="text-slate-500 text-xs">Isolated</span>
+          <span className="text-slate-400 text-xs">Isolated</span>
         ),
     },
   ];
@@ -157,22 +160,22 @@ export const MineViolationsActions: React.FC = () => {
   return (
     <div className="p-4 sm:p-6 space-y-6 max-w-7xl mx-auto">
       {/* Header */}
-      <div className="pb-4 border-b border-slate-800">
-        <span className="text-[10px] font-mono text-amber-500 uppercase tracking-widest font-bold">
+      <div className="pb-4 border-b border-slate-200">
+        <span className="text-[10px] font-mono text-slate-500 uppercase tracking-widest font-semibold">
           COMPLIANCE REMEDIATION LIFECYCLE
         </span>
-        <h1 className="text-xl sm:text-2xl font-bold font-mono text-slate-100 mt-0.5">
+        <h1 className="text-xl sm:text-2xl font-bold font-mono text-slate-900 mt-0.5">
           Violations & Corrective Action Verification
         </h1>
-        <p className="text-xs text-slate-400 mt-1">
+        <p className="text-xs text-slate-600 mt-1">
           Review ground evidence uploads, perform statutory verification, and manage closing workflows
         </p>
       </div>
 
       {successMsg && (
-        <div className="p-3 rounded-lg border border-emerald-800/80 bg-emerald-950/40 text-emerald-300 text-xs flex items-center justify-between">
+        <div className="p-3 rounded-md border border-emerald-200 bg-emerald-50 text-emerald-900 text-xs flex items-center justify-between">
           <span>{successMsg}</span>
-          <button onClick={() => setSuccessMsg(null)} className="font-mono text-emerald-400 font-bold ml-4">
+          <button onClick={() => setSuccessMsg(null)} className="font-mono text-emerald-700 font-bold ml-4">
             DISMISS
           </button>
         </div>
@@ -181,11 +184,11 @@ export const MineViolationsActions: React.FC = () => {
       {/* Corrective Actions Section (With Verification Trigger) */}
       <div className="space-y-3">
         <div className="flex items-center justify-between">
-          <h2 className="text-sm font-bold font-mono text-slate-200 flex items-center gap-2">
-            <CheckSquare className="w-4 h-4 text-sky-400" />
+          <h2 className="text-sm font-bold font-mono text-slate-900 flex items-center gap-2">
+            <CheckSquare className="w-4 h-4 text-slate-700" />
             <span>Corrective Actions Oversight & Verification</span>
           </h2>
-          <span className="text-xs font-mono text-amber-400">
+          <span className="text-xs font-mono text-slate-600">
             {actions.filter((a) => a.status === "AWAITING_VERIFICATION").length} Pending Manager Verification
           </span>
         </div>
@@ -201,8 +204,8 @@ export const MineViolationsActions: React.FC = () => {
 
       {/* Violations Registry Section */}
       <div className="space-y-3 pt-4">
-        <h2 className="text-sm font-bold font-mono text-slate-200 flex items-center gap-2">
-          <FileWarning className="w-4 h-4 text-amber-400" />
+        <h2 className="text-sm font-bold font-mono text-slate-900 flex items-center gap-2">
+          <FileWarning className="w-4 h-4 text-slate-700" />
           <span>Statutory Violations Registry</span>
         </h2>
 
@@ -217,79 +220,79 @@ export const MineViolationsActions: React.FC = () => {
 
       {/* Review & Verify Modal */}
       {selectedAction && (
-        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="w-full max-w-lg bg-[#090D15] border border-slate-800 rounded-xl p-5 shadow-2xl space-y-4">
-            <div className="flex items-center justify-between pb-2 border-b border-slate-800">
+        <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="w-full max-w-lg bg-white border border-slate-200 rounded-xl p-5 shadow-2xl space-y-4">
+            <div className="flex items-center justify-between pb-2 border-b border-slate-200">
               <div>
-                <span className="font-mono text-xs text-amber-400 font-bold">{selectedAction.action_id}</span>
-                <h3 className="text-sm font-bold text-slate-100 mt-0.5">Manager Verification Review</h3>
+                <span className="font-mono text-xs text-slate-900 font-bold">{selectedAction.action_id}</span>
+                <h3 className="text-sm font-bold text-slate-900 mt-0.5">Manager Verification Review</h3>
               </div>
               <StatusBadge status={selectedAction.status} />
             </div>
 
-            <div className="space-y-2 bg-[#0E1420] p-3 rounded-lg border border-slate-800 text-xs">
-              <p className="text-slate-200 font-medium">{selectedAction.description}</p>
-              <div className="flex items-center justify-between text-slate-400 font-mono text-[11px] pt-1">
+            <div className="space-y-1.5 bg-slate-50 p-3 rounded-lg border border-slate-200 text-xs">
+              <p className="text-slate-800 font-medium">{selectedAction.description}</p>
+              <div className="flex items-center justify-between text-slate-500 font-mono text-[11px] pt-1">
                 <span>Department: {selectedAction.department}</span>
                 <span>Deadline: {selectedAction.deadline}</span>
               </div>
             </div>
 
             {/* Field Uploaded Proof Inspection */}
-            <div className="p-3 rounded-lg border border-slate-800 bg-[#080C13] space-y-2">
-              <span className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
-                <Camera className="w-4 h-4 text-emerald-400" />
+            <div className="p-3 rounded-lg border border-slate-200 bg-white space-y-2">
+              <span className="text-xs font-semibold text-slate-800 flex items-center gap-1.5">
+                <Camera className="w-4 h-4 text-emerald-600" />
                 <span>Field Evidence Dossier</span>
               </span>
-              <p className="text-xs text-slate-300 italic">
+              <p className="text-xs text-slate-600 italic">
                 "Replaced crushed 6.6kV trailing cable section with armored conduit and elevated crossing bridge. Insulation resistance tested 150 MOhm."
               </p>
-              <div className="text-[11px] font-mono text-amber-400">
+              <div className="text-[11px] font-mono text-slate-600">
                 Attached Photo: photo_evidence_repaired_conduit.jpg
               </div>
             </div>
 
             <form onSubmit={handleVerify} className="space-y-3 text-xs">
               <div>
-                <label className="text-slate-300 font-semibold block mb-1">Verification Decision</label>
+                <label className="text-slate-700 font-semibold block mb-1">Verification Decision</label>
                 <div className="grid grid-cols-2 gap-2">
                   <button
                     type="button"
                     onClick={() => setDecision("ACCEPTED")}
-                    className={`p-2 rounded-lg border font-mono font-bold text-xs flex items-center justify-center gap-1.5 transition-colors ${
+                    className={`p-2 rounded-md border font-mono font-bold text-xs flex items-center justify-center gap-1.5 transition-colors ${
                       decision === "ACCEPTED"
-                        ? "bg-emerald-950 border-emerald-700 text-emerald-300"
-                        : "bg-[#080C13] border-slate-700 text-slate-400"
+                        ? "bg-emerald-50 border-emerald-400 text-emerald-800 shadow-xs"
+                        : "bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100"
                     }`}
                   >
-                    <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600" />
                     <span>Approve & Close</span>
                   </button>
 
                   <button
                     type="button"
                     onClick={() => setDecision("RETURNED_FOR_CORRECTION")}
-                    className={`p-2 rounded-lg border font-mono font-bold text-xs flex items-center justify-center gap-1.5 transition-colors ${
+                    className={`p-2 rounded-md border font-mono font-bold text-xs flex items-center justify-center gap-1.5 transition-colors ${
                       decision === "RETURNED_FOR_CORRECTION"
-                        ? "bg-amber-950 border-amber-700 text-amber-300"
-                        : "bg-[#080C13] border-slate-700 text-slate-400"
+                        ? "bg-amber-50 border-amber-400 text-amber-800 shadow-xs"
+                        : "bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100"
                     }`}
                   >
-                    <XCircle className="w-4 h-4 text-amber-400" />
+                    <XCircle className="w-4 h-4 text-amber-600" />
                     <span>Return for Correction</span>
                   </button>
                 </div>
               </div>
 
               <div>
-                <label className="text-slate-300 font-semibold block mb-1">Verification Audit Remarks *</label>
+                <label className="text-slate-700 font-semibold block mb-1">Verification Audit Remarks *</label>
                 <textarea
                   required
                   rows={2}
                   placeholder="State formal findings of evidence verification..."
                   value={verifyRemarks}
                   onChange={(e) => setVerifyRemarks(e.target.value)}
-                  className="w-full p-2 bg-[#080C13] border border-slate-700 rounded text-slate-100"
+                  className="w-full p-2 bg-white border border-slate-300 rounded text-slate-900 focus:outline-none focus:border-slate-800"
                 />
               </div>
 
@@ -297,14 +300,14 @@ export const MineViolationsActions: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setSelectedAction(null)}
-                  className="px-3 py-1.5 rounded bg-slate-800 text-slate-300"
+                  className="px-3 py-1.5 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={verifying}
-                  className="px-4 py-1.5 rounded bg-amber-600 hover:bg-amber-500 font-bold text-black"
+                  className="px-4 py-1.5 rounded bg-slate-900 hover:bg-black font-medium text-white shadow-xs"
                 >
                   {verifying ? "Logging to Audit Chain..." : "Confirm Verification"}
                 </button>

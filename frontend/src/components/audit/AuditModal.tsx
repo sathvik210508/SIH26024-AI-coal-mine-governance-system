@@ -38,110 +38,125 @@ export const AuditModal: React.FC<AuditModalProps> = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 overflow-hidden bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="w-full max-w-2xl bg-[#090D15] border border-slate-800 rounded-xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-150">
+    <div className="fixed inset-0 z-50 overflow-hidden bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
+      <div className="w-full max-w-2xl bg-white border border-slate-200 rounded-xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-150">
         {/* Header */}
-        <div className="p-4 border-b border-slate-800 bg-[#0F1522] flex items-center justify-between">
+        <div className="p-4 border-b border-slate-200 bg-slate-50/80 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-lg bg-emerald-950/80 text-emerald-400 border border-emerald-800/60">
-              <Lock className="w-5 h-5" />
+            <div className="p-2 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200">
+              <Lock className="w-4 h-4" />
             </div>
             <div>
-              <h3 className="text-base font-bold text-slate-100">
+              <h3 className="text-sm font-bold text-slate-900">
                 Cryptographic Audit Hash Chain
               </h3>
-              <p className="text-xs text-slate-400">
-                Immutable SHA-256 Chained Event Verification
+              <p className="text-xs text-slate-500">
+                Immutable SHA-256 Merkle Chained Event Verification
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition-colors"
+            className="p-1 rounded text-slate-400 hover:text-slate-600 hover:bg-slate-200 transition-colors"
           >
-            <X className="w-5 h-5" />
+            <X className="w-4 h-4" />
           </button>
         </div>
 
-        {/* Content */}
-        <div className="p-6 space-y-6">
+        {/* Verification Summary */}
+        <div className="p-4 border-b border-slate-200 bg-white">
           {loading ? (
-            <div className="py-12 text-center space-y-3">
-              <RefreshCw className="w-8 h-8 text-amber-500 animate-spin mx-auto" />
-              <p className="text-sm text-slate-300 font-mono">
-                Calculating block SHA-256 hashes sequentially from Genesis...
-              </p>
+            <div className="flex items-center justify-center py-6 text-slate-500 gap-2 text-xs font-mono">
+              <RefreshCw className="w-4 h-4 animate-spin text-slate-700" />
+              <span>Verifying SHA-256 Hash Tree from Genesis...</span>
             </div>
-          ) : result ? (
-            <>
-              {/* Status Banner */}
-              <div
-                className={`p-4 rounded-lg border flex items-start gap-3 ${
-                  result.status === "HASH_CHAIN_VALID"
-                    ? "bg-emerald-950/40 border-emerald-800/70 text-emerald-200"
-                    : "bg-red-950/40 border-red-800/70 text-red-200"
-                }`}
-              >
-                {result.status === "HASH_CHAIN_VALID" ? (
-                  <ShieldCheck className="w-6 h-6 text-emerald-400 shrink-0 mt-0.5" />
-                ) : (
-                  <ShieldAlert className="w-6 h-6 text-red-400 shrink-0 mt-0.5" />
-                )}
+          ) : result?.status === "HASH_CHAIN_VALID" ? (
+            <div className="p-3.5 rounded-lg border border-emerald-200 bg-emerald-50 text-emerald-900 flex items-center justify-between">
+              <div className="flex items-center gap-2.5">
+                <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
                 <div>
-                  <h4 className="text-sm font-bold tracking-wide">
-                    {result.status === "HASH_CHAIN_VALID"
-                      ? "HASH CHAIN VALID — 100% CRYPTOGRAPHIC INTEGRITY"
-                      : "INTEGRITY ISSUE DETECTED — HASH MISMATCH"}
-                  </h4>
-                  <p className="text-xs text-slate-300 mt-1">{result.message}</p>
+                  <div className="text-xs font-bold font-mono">
+                    MATHEMATICAL INTEGRITY VERIFIED (100% VALID)
+                  </div>
+                  <div className="text-[11px] text-emerald-700 mt-0.5">
+                    {result.total_blocks} chained event blocks confirmed. Zero tampering detected.
+                  </div>
                 </div>
               </div>
+              <button
+                onClick={runVerification}
+                className="px-2.5 py-1 rounded bg-white hover:bg-emerald-100 text-emerald-800 text-xs font-mono border border-emerald-300 font-semibold transition-colors"
+              >
+                Re-Verify
+              </button>
+            </div>
+          ) : (
+            <div className="p-3.5 rounded-lg border border-red-200 bg-red-50 text-red-900 flex items-center justify-between">
+              <div className="flex items-center gap-2.5">
+                <ShieldAlert className="w-5 h-5 text-red-600 shrink-0" />
+                <div>
+                  <div className="text-xs font-bold font-mono">HASH CHAIN INTEGRITY ALERT</div>
+                  <div className="text-[11px] text-red-700 mt-0.5">
+                    {result?.message || "Hash mismatch or block tampering detected."}
+                  </div>
+                </div>
+              </div>
+              <button
+                onClick={runVerification}
+                className="px-2.5 py-1 rounded bg-white hover:bg-red-100 text-red-800 text-xs font-mono border border-red-300 font-semibold transition-colors"
+              >
+                Re-Verify
+              </button>
+            </div>
+          )}
+        </div>
 
-              {/* Block Statistics */}
-              <div className="grid grid-cols-2 gap-4">
-                <div className="p-3.5 rounded-lg bg-[#0D131F] border border-slate-800">
-                  <span className="text-xs text-slate-400 block mb-1">Total Chained Blocks</span>
-                  <span className="text-xl font-bold font-mono text-slate-100">
-                    {result.total_blocks} Blocks
-                  </span>
-                </div>
-                <div className="p-3.5 rounded-lg bg-[#0D131F] border border-slate-800">
-                  <span className="text-xs text-slate-400 block mb-1">Genesis Block Status</span>
-                  <span className="text-xs font-mono text-emerald-400 flex items-center gap-1 mt-1 font-semibold">
-                    <CheckCircle2 className="w-4 h-4" /> Root Anchor Intact
-                  </span>
-                </div>
-              </div>
+        {/* Recent Chained Blocks */}
+        <div className="p-4 space-y-2 bg-slate-50/50">
+          <div className="flex items-center justify-between text-xs text-slate-500 font-mono">
+            <span>AUDIT TRAIL EVENT BLOCKS</span>
+            <span>VERIFIED: {result?.verified_at?.slice(0, 19).replace("T", " ") || "Live"}</span>
+          </div>
 
-              {/* Latest Tip Hash */}
-              <div className="p-3.5 rounded-lg bg-[#0A0E17] border border-slate-800/90 font-mono text-xs space-y-1.5">
-                <div className="flex items-center gap-1 text-slate-400">
-                  <Hash className="w-3.5 h-3.5 text-amber-400" />
-                  <span>Latest Chain Tip Hash (SHA-256):</span>
+          <div className="max-h-60 overflow-y-auto space-y-1.5 pr-1">
+            {result?.recent_blocks && result.recent_blocks.length > 0 ? (
+              result.recent_blocks.map((b) => (
+                <div
+                  key={b.block_id}
+                  className="p-2.5 rounded border border-slate-200 bg-white text-xs space-y-1"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="font-mono font-bold text-slate-900">
+                      Block #{b.block_id} • {b.action}
+                    </span>
+                    <span className="text-[10px] font-mono text-slate-500">
+                      {b.timestamp?.slice(11, 19)}
+                    </span>
+                  </div>
+                  <div className="text-[11px] text-slate-600">
+                    Entity: <span className="font-medium text-slate-800">{b.entity_type}</span> • User:{" "}
+                    <span className="font-mono">{b.user_email}</span>
+                  </div>
+                  <div className="text-[10px] font-mono text-slate-500 truncate">
+                    Hash: <span className="text-slate-700 font-medium">{b.block_hash}</span>
+                  </div>
                 </div>
-                <p className="text-amber-300/90 break-all bg-black/40 p-2 rounded border border-slate-800 text-[11px]">
-                  {result.latest_block_hash || "0000000000000000000000000000000000000000000000000000000000000000"}
-                </p>
-                <span className="text-[10px] text-slate-500 block pt-1">
-                  Verified timestamp: {result.verified_at}
-                </span>
+              ))
+            ) : (
+              <div className="p-6 text-center text-xs text-slate-400">
+                Verified block records anchored in database.
               </div>
-            </>
-          ) : null}
+            )}
+          </div>
         </div>
 
         {/* Footer */}
-        <div className="p-3 border-t border-slate-800 bg-[#0F1522] flex items-center justify-between">
-          <span className="text-xs text-slate-400">
-            Algorithm: SHA-256 Sequential Merkle Hash Chaining
-          </span>
+        <div className="p-3 border-t border-slate-200 bg-white flex justify-end">
           <button
-            onClick={runVerification}
-            disabled={loading}
-            className="px-3.5 py-1.5 rounded bg-amber-600 hover:bg-amber-500 text-black font-semibold text-xs transition-colors flex items-center gap-1.5"
+            onClick={onClose}
+            className="px-4 py-1.5 rounded-md bg-slate-900 hover:bg-black text-white text-xs font-medium transition-colors"
           >
-            <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} />
-            <span>Re-verify Chain</span>
+            Close Window
           </button>
         </div>
       </div>

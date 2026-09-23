@@ -78,17 +78,17 @@ export const GovernmentDashboard: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 pb-4">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-xl font-bold font-mono text-slate-100 uppercase tracking-tight">
+            <h1 className="text-xl font-bold text-slate-900 tracking-tight">
               Directorate General of Mines Safety (DGMS)
             </h1>
-            <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-red-500/20 text-red-400 border border-red-500/30">
-              STATUTORY REGULATOR
+            <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-700 border border-slate-200 uppercase tracking-wider">
+              Statutory Regulator
             </span>
           </div>
-          <p className="text-xs text-slate-400 mt-1">
+          <p className="text-xs text-slate-500 mt-1">
             National mining safety surveillance, statutory enforcement orders, accident investigations, and compliance audit hash verification.
           </p>
         </div>
@@ -96,7 +96,7 @@ export const GovernmentDashboard: React.FC = () => {
         <div className="flex items-center gap-2">
           <button
             onClick={fetchData}
-            className="p-2 rounded bg-[#101726] border border-slate-800 text-slate-300 hover:text-amber-400 transition-colors"
+            className="p-2 rounded-lg bg-white border border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-colors shadow-xs"
             title="Refresh"
           >
             <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
@@ -104,7 +104,7 @@ export const GovernmentDashboard: React.FC = () => {
 
           <button
             onClick={() => setShowOrderModal(true)}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-red-600 hover:bg-red-500 text-white font-semibold text-xs transition-colors shadow-sm"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-rose-700 hover:bg-rose-800 text-white font-semibold text-xs transition-colors shadow-xs"
           >
             <ClipboardCheck className="w-4 h-4" />
             <span>Order Statutory Inspection</span>
@@ -112,9 +112,9 @@ export const GovernmentDashboard: React.FC = () => {
 
           <button
             onClick={downloadReport}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-[#111827] border border-slate-700 hover:border-slate-500 text-slate-200 text-xs transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold transition-colors shadow-xs"
           >
-            <Download className="w-3.5 h-3.5 text-red-400" />
+            <Download className="w-3.5 h-3.5 text-rose-600" />
             <span>Regulatory Audit PDF</span>
           </button>
         </div>
@@ -169,40 +169,40 @@ export const GovernmentDashboard: React.FC = () => {
       {/* Grid: High Risk Mines Watchlist & Statutory Notices */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* High Risk Mines Enforcement Watchlist */}
-        <div className="rounded-lg border border-slate-800 bg-[#0B0F19] p-4">
-          <div className="flex items-center justify-between mb-3 pb-2 border-b border-slate-800/80">
+        <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-xs">
+          <div className="flex items-center justify-between mb-4 pb-3 border-b border-slate-100">
             <div className="flex items-center gap-2">
-              <ShieldAlert className="w-4 h-4 text-red-400" />
-              <h3 className="text-xs font-bold font-mono text-slate-200 uppercase">
+              <ShieldAlert className="w-4 h-4 text-rose-600" />
+              <h3 className="text-xs font-bold text-slate-800 uppercase tracking-wider">
                 Mines Subject to Enhanced Statutory Surveillance
               </h3>
             </div>
-            <span className="text-[10px] font-mono text-red-400 font-bold">
-              PRIORITY ENFORCEMENT
+            <span className="text-[10px] font-bold text-rose-700 bg-rose-50 border border-rose-200 px-2 py-0.5 rounded uppercase tracking-wider">
+              Priority Enforcement
             </span>
           </div>
 
           <div className="space-y-2.5">
             {(!data?.high_risk_mines || data.high_risk_mines.length === 0) ? (
-              <div className="p-4 text-center text-xs text-slate-500 font-mono">
+              <div className="p-4 text-center text-xs text-slate-400 font-mono">
                 No mines currently marked in HIGH or CRITICAL risk status.
               </div>
             ) : (
               data.high_risk_mines.map((m: any) => (
                 <div
                   key={m.id}
-                  className="p-3 rounded bg-[#101726] border border-red-900/30 flex items-center justify-between"
+                  className="p-3.5 rounded-lg bg-slate-50 border border-slate-200 flex items-center justify-between hover:bg-slate-100/70 transition-colors"
                 >
                   <div>
                     <div className="flex items-center gap-2">
-                      <span className="font-mono font-bold text-xs text-slate-100">{m.name}</span>
+                      <span className="font-bold text-xs text-slate-900">{m.name}</span>
                       <span className="text-[10px] font-mono text-slate-500">[{m.code}]</span>
                       <StatusBadge status={m.risk_tier} />
                     </div>
-                    <div className="text-[11px] text-slate-400 mt-1 flex items-center gap-3 font-mono">
-                      <span>Risk: <b className="text-red-400">{m.risk_score}</b></span>
-                      <span>Compliance: <b className="text-emerald-400">{m.compliance_score}%</b></span>
-                      <span>Reg No: {m.registration_number || "DGMS/REG/01"}</span>
+                    <div className="text-[11px] text-slate-500 mt-1 flex items-center gap-3">
+                      <span>Risk: <b className="text-rose-700 font-semibold">{m.risk_score}</b></span>
+                      <span>Compliance: <b className="text-emerald-700 font-semibold">{m.compliance_score}%</b></span>
+                      <span className="font-mono text-slate-400">Reg: {m.registration_number || "DGMS/REG/01"}</span>
                     </div>
                   </div>
                   <button
@@ -210,7 +210,7 @@ export const GovernmentDashboard: React.FC = () => {
                       setOrderForm({ ...orderForm, mine_id: m.id });
                       setShowOrderModal(true);
                     }}
-                    className="px-2.5 py-1 rounded bg-red-950/80 border border-red-800/60 text-red-300 text-[11px] font-mono hover:bg-red-900 transition-colors"
+                    className="px-2.5 py-1 rounded-md bg-white border border-rose-300 text-rose-700 text-xs font-semibold hover:bg-rose-50 transition-colors shadow-xs"
                   >
                     Order Audit
                   </button>
@@ -221,33 +221,33 @@ export const GovernmentDashboard: React.FC = () => {
         </div>
 
         {/* Recent Regulatory Directives Issued */}
-        <div className="rounded-lg border border-slate-800 bg-[#0B0F19] p-4">
-          <div className="flex items-center justify-between mb-3 pb-2 border-b border-slate-800/80">
+        <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-xs">
+          <div className="flex items-center justify-between mb-4 pb-3 border-b border-slate-100">
             <div className="flex items-center gap-2">
-              <FileWarning className="w-4 h-4 text-amber-400" />
-              <h3 className="text-xs font-bold font-mono text-slate-200 uppercase">
+              <FileWarning className="w-4 h-4 text-slate-600" />
+              <h3 className="text-xs font-bold text-slate-800 uppercase tracking-wider">
                 Active Statutory Directives & Prohibition Orders
               </h3>
             </div>
-            <a href="#/government/regulatory-actions" className="text-[11px] font-mono text-amber-400 hover:underline">
+            <a href="#/government/regulatory-actions" className="text-[11px] font-semibold text-slate-700 hover:text-slate-900 hover:underline">
               View All Directives &rarr;
             </a>
           </div>
 
           <div className="space-y-2.5">
             {(!data?.regulatory_actions || data.regulatory_actions.length === 0) ? (
-              <div className="p-4 text-center text-xs text-slate-500 font-mono">
+              <div className="p-4 text-center text-xs text-slate-400 font-mono">
                 No active regulatory orders or notices.
               </div>
             ) : (
               data.regulatory_actions.map((act: any) => (
-                <div key={act.id} className="p-3 rounded bg-[#101726] border border-slate-800/80">
+                <div key={act.id} className="p-3.5 rounded-lg bg-slate-50 border border-slate-200">
                   <div className="flex items-center justify-between">
-                    <span className="font-mono font-bold text-xs text-amber-400">{act.action_id}</span>
+                    <span className="font-mono font-bold text-xs text-slate-900">{act.action_id}</span>
                     <StatusBadge status={act.status} />
                   </div>
-                  <p className="text-[11px] text-slate-300 mt-1 line-clamp-2">{act.description}</p>
-                  <div className="mt-2 pt-2 border-t border-slate-800/60 flex items-center justify-between text-[10px] font-mono text-slate-400">
+                  <p className="text-xs text-slate-700 mt-1 line-clamp-2">{act.description}</p>
+                  <div className="mt-2 pt-2 border-t border-slate-200/80 flex items-center justify-between text-[11px] text-slate-500 font-mono">
                     <span>Deadline: {act.deadline}</span>
                     <span>Issued By: {act.issued_by}</span>
                   </div>
@@ -259,36 +259,36 @@ export const GovernmentDashboard: React.FC = () => {
       </div>
 
       {/* Pending Mining Applications & Statutory Approvals */}
-      <div className="rounded-lg border border-slate-800 bg-[#0B0F19] p-4">
-        <div className="flex items-center justify-between mb-3 pb-2 border-b border-slate-800/80">
+      <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-xs">
+        <div className="flex items-center justify-between mb-4 pb-3 border-b border-slate-100">
           <div className="flex items-center gap-2">
-            <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-            <h3 className="text-xs font-bold font-mono text-slate-200 uppercase">
+            <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+            <h3 className="text-xs font-bold text-slate-800 uppercase tracking-wider">
               Pending Statutory Applications & Permit Requests
             </h3>
           </div>
-          <span className="text-[10px] font-mono text-slate-500">Awaiting Decision</span>
+          <span className="text-[11px] text-slate-500">Awaiting Decision</span>
         </div>
 
         <DataTable
           columns={[
             {
               header: "Application ID",
-              accessor: (row: any) => <span className="font-mono font-bold text-amber-400">{row.application_id}</span>,
+              accessor: (row: any) => <span className="font-mono font-bold text-slate-900 text-xs">{row.application_id}</span>,
             },
             {
               header: "Type & Title",
               accessor: (row: any) => (
                 <div>
-                  <div className="font-medium text-slate-200 text-xs">{row.title}</div>
-                  <div className="text-[10px] text-slate-400 font-mono">{row.application_type}</div>
+                  <div className="font-semibold text-slate-900 text-xs">{row.title}</div>
+                  <div className="text-[11px] text-slate-500 font-mono">{row.application_type}</div>
                 </div>
               ),
             },
             {
               header: "Applicant / Mine",
               accessor: (row: any) => (
-                <span className="text-xs text-slate-300 font-mono">Mine ID: {row.mine_id}</span>
+                <span className="text-xs text-slate-600 font-mono">Mine ID: {row.mine_id}</span>
               ),
             },
             {
@@ -298,7 +298,7 @@ export const GovernmentDashboard: React.FC = () => {
             {
               header: "Submission Date",
               accessor: (row: any) => (
-                <span className="font-mono text-xs text-slate-400">{row.submission_date}</span>
+                <span className="font-mono text-xs text-slate-600">{row.submission_date}</span>
               ),
             },
           ]}
@@ -309,27 +309,27 @@ export const GovernmentDashboard: React.FC = () => {
 
       {/* Order Statutory Inspection Modal */}
       {showOrderModal && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-[#0B0F19] border border-slate-700 rounded-xl w-full max-w-lg p-6 shadow-2xl space-y-4">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-              <h3 className="font-mono font-bold text-sm text-slate-100 uppercase">
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white border border-slate-200 rounded-xl w-full max-w-lg p-6 shadow-2xl space-y-4">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <h3 className="font-bold text-sm text-slate-900 uppercase tracking-tight">
                 Order Statutory Regulatory Inspection
               </h3>
               <button
                 onClick={() => setShowOrderModal(false)}
-                className="text-slate-400 hover:text-slate-200 text-xs font-mono"
+                className="text-slate-400 hover:text-slate-700 text-xs font-mono"
               >
                 [CLOSE]
               </button>
             </div>
 
-            <form onSubmit={handleOrderInspection} className="space-y-3 text-xs">
+            <form onSubmit={handleOrderInspection} className="space-y-3.5 text-xs">
               <div>
-                <label className="block text-slate-300 mb-1 font-mono">Target Mine Operation</label>
+                <label className="block text-slate-700 mb-1 font-semibold">Target Mine Operation</label>
                 <select
                   value={orderForm.mine_id}
                   onChange={(e) => setOrderForm({ ...orderForm, mine_id: parseInt(e.target.value) })}
-                  className="w-full px-3 py-2 bg-[#101726] border border-slate-700 rounded text-slate-200 focus:outline-none focus:border-red-500 font-mono"
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-900 focus:outline-none focus:ring-1 focus:ring-rose-600 focus:bg-white text-xs"
                 >
                   <option value={1}>Jharia Open Cast Pit 04 (JHA-OCP-04)</option>
                   <option value={2}>Raniganj Deep Underground Block A (RAN-UG-01)</option>
@@ -341,39 +341,39 @@ export const GovernmentDashboard: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-slate-300 mb-1 font-mono">Statutory Regulatory Reference</label>
+                <label className="block text-slate-700 mb-1 font-semibold">Statutory Regulatory Reference</label>
                 <input
                   type="text"
                   required
                   value={orderForm.regulatory_reference}
                   onChange={(e) => setOrderForm({ ...orderForm, regulatory_reference: e.target.value })}
-                  className="w-full px-3 py-2 bg-[#101726] border border-slate-700 rounded text-slate-200 focus:outline-none focus:border-red-500 font-mono"
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-900 focus:outline-none focus:ring-1 focus:ring-rose-600 focus:bg-white text-xs"
                 />
               </div>
 
               <div>
-                <label className="block text-slate-300 mb-1 font-mono">Special Inspection Instructions & Mandate</label>
+                <label className="block text-slate-700 mb-1 font-semibold">Special Inspection Instructions & Mandate</label>
                 <textarea
                   required
                   rows={3}
                   value={orderForm.instructions}
                   onChange={(e) => setOrderForm({ ...orderForm, instructions: e.target.value })}
-                  className="w-full px-3 py-2 bg-[#101726] border border-slate-700 rounded text-slate-200 focus:outline-none focus:border-red-500 font-sans"
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-900 focus:outline-none focus:ring-1 focus:ring-rose-600 focus:bg-white text-xs"
                 />
               </div>
 
-              <div className="pt-3 border-t border-slate-800 flex justify-end gap-2">
+              <div className="pt-3 border-t border-slate-100 flex justify-end gap-2">
                 <button
                   type="button"
                   onClick={() => setShowOrderModal(false)}
-                  className="px-4 py-2 rounded bg-slate-800 text-slate-300 hover:bg-slate-700 font-mono"
+                  className="px-4 py-2 rounded-lg bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 text-xs font-semibold"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={submittingOrder}
-                  className="px-4 py-2 rounded bg-red-600 hover:bg-red-500 text-white font-bold font-mono"
+                  className="px-4 py-2 rounded-lg bg-rose-700 hover:bg-rose-800 text-white font-semibold text-xs shadow-xs"
                 >
                   {submittingOrder ? "Issuing Order..." : "Issue Statutory Order"}
                 </button>

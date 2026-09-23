@@ -305,4 +305,12 @@ export interface AuditVerificationResult {
   latest_block_hash?: string;
   broken_event_id?: string;
   verified_at: string;
+  recent_blocks?: Array<{
+    block_id: number;
+    action: string;
+    timestamp?: string;
+    entity_type?: string;
+    user_email?: string;
+    block_hash?: string;
+  }>;
 }

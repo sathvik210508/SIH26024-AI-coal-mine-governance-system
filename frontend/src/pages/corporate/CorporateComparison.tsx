@@ -41,17 +41,17 @@ export const CorporateComparison: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 pb-4">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-xl font-bold font-mono text-slate-100 uppercase tracking-tight">
+            <h1 className="text-xl font-bold text-slate-900 tracking-tight">
               6-Mine Operations Comparison Matrix
             </h1>
-            <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">
-              CROSS-PORTFOLIO AUDIT
+            <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-700 border border-slate-200 uppercase tracking-wider">
+              Cross-Portfolio Audit
             </span>
           </div>
-          <p className="text-xs text-slate-400 mt-1">
+          <p className="text-xs text-slate-500 mt-1">
             Comparative performance, safety indices, and compliance disparity benchmarks across all operating mines.
           </p>
         </div>
@@ -59,7 +59,7 @@ export const CorporateComparison: React.FC = () => {
         <div className="flex items-center gap-2">
           <button
             onClick={fetchData}
-            className="p-2 rounded bg-[#101726] border border-slate-800 text-slate-300 hover:text-amber-400 transition-colors"
+            className="p-2 rounded-lg bg-white border border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-colors shadow-xs"
             title="Refresh Data"
           >
             <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
@@ -70,40 +70,40 @@ export const CorporateComparison: React.FC = () => {
       {/* Top vs Bottom Mine Quick Insights */}
       {mines.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="p-4 rounded-lg bg-[#0B0F19] border border-emerald-500/30 flex items-center justify-between">
+          <div className="p-4 rounded-xl bg-white border border-emerald-200 shadow-xs flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="p-3 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+              <div className="p-2.5 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-100">
                 <Trophy className="w-5 h-5" />
               </div>
               <div>
-                <div className="text-[10px] font-mono text-emerald-400 uppercase tracking-wider">
+                <div className="text-[11px] font-semibold text-emerald-800 uppercase tracking-wider">
                   Top Safety & Compliance Leader
                 </div>
-                <div className="font-bold text-sm text-slate-100 mt-0.5">
-                  {bestMine?.mine_name} <span className="text-xs font-mono text-slate-400">[{bestMine?.code}]</span>
+                <div className="font-bold text-sm text-slate-900 mt-0.5">
+                  {bestMine?.mine_name} <span className="text-xs font-mono font-medium text-slate-500">[{bestMine?.code}]</span>
                 </div>
-                <div className="text-xs text-slate-400 mt-0.5 font-mono">
-                  Safety Index: <b className="text-emerald-400">{bestMine?.safety_index}/100</b> | Compliance: <b className="text-emerald-400">{bestMine?.compliance_score}%</b>
+                <div className="text-xs text-slate-600 mt-0.5">
+                  Safety Index: <b className="text-emerald-700 font-semibold">{bestMine?.safety_index}/100</b> &bull; Compliance: <b className="text-emerald-700 font-semibold">{bestMine?.compliance_score}%</b>
                 </div>
               </div>
             </div>
             <StatusBadge status="LOW" />
           </div>
 
-          <div className="p-4 rounded-lg bg-[#0B0F19] border border-red-500/30 flex items-center justify-between">
+          <div className="p-4 rounded-xl bg-white border border-rose-200 shadow-xs flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="p-3 rounded-lg bg-red-500/10 text-red-400 border border-red-500/30">
+              <div className="p-2.5 rounded-lg bg-rose-50 text-rose-700 border border-rose-100">
                 <AlertTriangle className="w-5 h-5" />
               </div>
               <div>
-                <div className="text-[10px] font-mono text-red-400 uppercase tracking-wider">
+                <div className="text-[11px] font-semibold text-rose-800 uppercase tracking-wider">
                   Priority Intervention Required
                 </div>
-                <div className="font-bold text-sm text-slate-100 mt-0.5">
-                  {lowestMine?.mine_name} <span className="text-xs font-mono text-slate-400">[{lowestMine?.code}]</span>
+                <div className="font-bold text-sm text-slate-900 mt-0.5">
+                  {lowestMine?.mine_name} <span className="text-xs font-mono font-medium text-slate-500">[{lowestMine?.code}]</span>
                 </div>
-                <div className="text-xs text-slate-400 mt-0.5 font-mono">
-                  Risk Score: <b className="text-red-400">{lowestMine?.risk_score}</b> | Overdue Actions: <b className="text-red-400">{lowestMine?.overdue_actions}</b>
+                <div className="text-xs text-slate-600 mt-0.5">
+                  Risk Score: <b className="text-rose-700 font-semibold">{lowestMine?.risk_score}</b> &bull; Overdue Actions: <b className="text-rose-700 font-semibold">{lowestMine?.overdue_actions}</b>
                 </div>
               </div>
             </div>
@@ -113,51 +113,52 @@ export const CorporateComparison: React.FC = () => {
       )}
 
       {/* Comparative Visual Chart */}
-      <div className="rounded-lg border border-slate-800 bg-[#0B0F19] p-4">
-        <div className="flex items-center justify-between mb-4 pb-2 border-b border-slate-800/80">
+      <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-xs">
+        <div className="flex items-center justify-between mb-4 pb-3 border-b border-slate-100">
           <div className="flex items-center gap-2">
-            <BarChart3 className="w-4 h-4 text-amber-400" />
-            <h2 className="text-xs font-bold font-mono text-slate-200 uppercase">
+            <BarChart3 className="w-4 h-4 text-slate-600" />
+            <h2 className="text-xs font-bold text-slate-800 uppercase tracking-wider">
               Portfolio Compliance vs AI Risk Score (Side-by-Side)
             </h2>
           </div>
-          <span className="text-[10px] font-mono text-slate-400">Real-Time Operational Sync</span>
+          <span className="text-[11px] text-slate-500">Real-Time Operational Sync</span>
         </div>
 
         <div className="h-64 w-full">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={chartData} margin={{ top: 10, right: 30, left: 0, bottom: 20 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#1F2937" vertical={false} />
-              <XAxis dataKey="name" stroke="#6B7280" tick={{ fontSize: 11, fill: "#9CA3AF" }} />
-              <YAxis domain={[0, 100]} stroke="#6B7280" tick={{ fontSize: 11, fill: "#9CA3AF" }} />
+              <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" vertical={false} />
+              <XAxis dataKey="name" stroke="#94A3B8" tick={{ fontSize: 11, fill: "#64748B" }} />
+              <YAxis domain={[0, 100]} stroke="#94A3B8" tick={{ fontSize: 11, fill: "#64748B" }} />
               <Tooltip
                 contentStyle={{
-                  backgroundColor: "#0B0F19",
-                  borderColor: "#374151",
-                  borderRadius: "0.375rem",
+                  backgroundColor: "#FFFFFF",
+                  borderColor: "#E2E8F0",
+                  borderRadius: "0.5rem",
+                  boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)",
                   fontSize: "12px",
-                  color: "#F3F4F6",
+                  color: "#0F172A",
                 }}
               />
               <Legend wrapperStyle={{ fontSize: "11px", paddingTop: "10px" }} />
-              <Bar dataKey="Compliance" fill="#10B981" name="Compliance Score (%)" radius={[4, 4, 0, 0]} />
-              <Bar dataKey="Risk" fill="#EF4444" name="AI Risk Score" radius={[4, 4, 0, 0]} />
-              <Bar dataKey="SafetyIndex" fill="#F59E0B" name="Safety Index" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="Compliance" fill="#059669" name="Compliance Score (%)" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="Risk" fill="#E11D48" name="AI Risk Score" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="SafetyIndex" fill="#4F46E5" name="Safety Index" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>
       </div>
 
       {/* Comparison Matrix Table */}
-      <div className="rounded-lg border border-slate-800 bg-[#0B0F19] p-4">
-        <div className="flex items-center justify-between mb-4 pb-2 border-b border-slate-800/80">
+      <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-xs">
+        <div className="flex items-center justify-between mb-4 pb-3 border-b border-slate-100">
           <div className="flex items-center gap-2">
-            <ShieldCheck className="w-4 h-4 text-emerald-400" />
-            <h2 className="text-xs font-bold font-mono text-slate-200 uppercase">
+            <ShieldCheck className="w-4 h-4 text-emerald-600" />
+            <h2 className="text-xs font-bold text-slate-800 uppercase tracking-wider">
               Comprehensive Operations Matrix Table
             </h2>
           </div>
-          <span className="text-[10px] font-mono text-slate-500">6 Operating Entities</span>
+          <span className="text-[11px] text-slate-500">6 Operating Entities</span>
         </div>
 
         <DataTable
@@ -166,8 +167,8 @@ export const CorporateComparison: React.FC = () => {
               header: "Mine & Code",
               accessor: (row: any) => (
                 <div>
-                  <div className="font-bold text-xs text-slate-100">{row.mine_name}</div>
-                  <span className="font-mono text-[10px] text-amber-400">{row.code}</span>
+                  <div className="font-bold text-xs text-slate-900">{row.mine_name}</div>
+                  <span className="font-mono text-[11px] font-medium text-slate-500">{row.code}</span>
                 </div>
               ),
             },
@@ -175,10 +176,10 @@ export const CorporateComparison: React.FC = () => {
               header: "Safety Index",
               accessor: (row: any) => (
                 <div className="font-mono text-xs">
-                  <span className={`font-bold ${row.safety_index >= 70 ? "text-emerald-400" : "text-amber-400"}`}>
+                  <span className={`font-bold ${row.safety_index >= 70 ? "text-emerald-700" : "text-amber-700"}`}>
                     {row.safety_index}
                   </span>
-                  <span className="text-slate-500 text-[10px]"> / 100</span>
+                  <span className="text-slate-400 text-[11px]"> / 100</span>
                 </div>
               ),
             },
@@ -187,7 +188,7 @@ export const CorporateComparison: React.FC = () => {
               accessor: (row: any) => (
                 <div className="flex items-center gap-2">
                   <StatusBadge status={row.risk_tier} />
-                  <span className="font-mono text-xs text-slate-300">({row.risk_score})</span>
+                  <span className="font-mono text-xs text-slate-600">({row.risk_score})</span>
                 </div>
               ),
             },
@@ -195,13 +196,13 @@ export const CorporateComparison: React.FC = () => {
               header: "Compliance",
               accessor: (row: any) => (
                 <div className="w-32">
-                  <div className="flex justify-between text-[10px] font-mono mb-1">
-                    <span className="text-slate-300">{row.compliance_score}%</span>
+                  <div className="flex justify-between text-[11px] font-mono mb-1">
+                    <span className="text-slate-700 font-semibold">{row.compliance_score}%</span>
                   </div>
-                  <div className="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
+                  <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
                     <div
-                      className={`h-full ${
-                        row.compliance_score >= 85 ? "bg-emerald-500" : "bg-amber-500"
+                      className={`h-full rounded-full ${
+                        row.compliance_score >= 85 ? "bg-emerald-600" : "bg-amber-500"
                       }`}
                       style={{ width: `${row.compliance_score}%` }}
                     />
@@ -212,7 +213,7 @@ export const CorporateComparison: React.FC = () => {
             {
               header: "Open Violations",
               accessor: (row: any) => (
-                <span className={`font-mono text-xs font-bold ${row.open_violations > 3 ? "text-red-400" : "text-slate-300"}`}>
+                <span className={`font-mono text-xs font-bold ${row.open_violations > 3 ? "text-rose-700" : "text-slate-700"}`}>
                   {row.open_violations}
                 </span>
               ),
@@ -220,7 +221,7 @@ export const CorporateComparison: React.FC = () => {
             {
               header: "Overdue Actions",
               accessor: (row: any) => (
-                <span className={`font-mono text-xs font-bold ${row.overdue_actions > 0 ? "text-red-400" : "text-emerald-400"}`}>
+                <span className={`font-mono text-xs font-bold ${row.overdue_actions > 0 ? "text-rose-700" : "text-emerald-700"}`}>
                   {row.overdue_actions}
                 </span>
               ),
@@ -228,7 +229,7 @@ export const CorporateComparison: React.FC = () => {
             {
               header: "Incidents Logged",
               accessor: (row: any) => (
-                <span className="font-mono text-xs text-slate-300">{row.incidents}</span>
+                <span className="font-mono text-xs text-slate-700">{row.incidents}</span>
               ),
             },
           ]}
