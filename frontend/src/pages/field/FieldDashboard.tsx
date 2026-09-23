@@ -8,7 +8,12 @@ import {
   Users, 
   MapPin, 
   ArrowRight,
-  ShieldCheck
+  ShieldCheck,
+  Mic,
+  MicOff,
+  Languages,
+  Radio,
+  Sparkles
 } from "lucide-react";
 import { api } from "../../services/api";
 import { MetricCard } from "../../components/common/MetricCard";
@@ -36,6 +41,35 @@ export const FieldDashboard: React.FC<{ onNavigate: (path: string) => void }> = 
 
   const [actionSuccess, setActionSuccess] = useState<string | null>(null);
 
+  // Voice-to-Structured & Multilingual states
+  const [isListening, setIsListening] = useState(false);
+  const [lang, setLang] = useState<"en" | "hi" | "te">("en");
+  const [geoCoords, setGeoCoords] = useState<{ lat: number; lng: number }>({ lat: 24.1988, lng: 82.6651 });
+
+  const i18n: Record<string, { category: string; desc: string; severity: string; submit: string; title: string }> = {
+    en: {
+      title: "Record Ground Safety Observation",
+      category: "Hazard Category",
+      desc: "Observation Description *",
+      severity: "Severity Level",
+      submit: "Submit Observation",
+    },
+    hi: {
+      title: "सुरक्षा अवलोकन दर्ज करें (Observation)",
+      category: "खतरे की श्रेणी (Category)",
+      desc: "अवलोकन विवरण (Description) *",
+      severity: "गंभीरता स्तर (Severity)",
+      submit: "अवलोकन दर्ज करें (Submit)",
+    },
+    te: {
+      title: "భద్రతా పరిశీలనను నమోదు చేయండి (Observation)",
+      category: "ప్రమాద వర్గం (Category)",
+      desc: "పరిశీలన వివరణ (Description) *",
+      severity: "తీవ్రత స్థాయి (Severity)",
+      submit: "సమర్పించండి (Submit)",
+    },
+  };
+
   const fetchDashboard = async () => {
     try {
       const res = await api.get("/field/dashboard");
@@ -49,7 +83,54 @@ export const FieldDashboard: React.FC<{ onNavigate: (path: string) => void }> = 
 
   useEffect(() => {
     fetchDashboard();
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => setGeoCoords({ lat: parseFloat(pos.coords.latitude.toFixed(4)), lng: parseFloat(pos.coords.longitude.toFixed(4)) }),
+        () => setGeoCoords({ lat: 24.1988, lng: 82.6651 })
+      );
+    }
   }, []);
+
+  const startVoiceInput = () => {
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      alert("Voice recognition is not supported in this browser. You can type directly in the field.");
+      return;
+    }
+    const recognition = new SpeechRecognition();
+    recognition.lang = lang === "hi" ? "hi-IN" : lang === "te" ? "te-IN" : "en-IN";
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+
+    recognition.onstart = () => setIsListening(true);
+    recognition.onend = () => setIsListening(false);
+    recognition.onerror = () => setIsListening(false);
+
+    recognition.onresult = (event: any) => {
+      const transcript = event.results[0][0].transcript;
+      setObsDesc((prev) => (prev ? `${prev} ${transcript}` : transcript));
+
+      // Intelligent auto-classification based on spoken keywords:
+      const lower = transcript.toLowerCase();
+      if (lower.includes("electric") || lower.includes("cable") || lower.includes("wire") || lower.includes("तार") || lower.includes("కరెంట్")) {
+        setObsCategory("Electrical Hazards");
+      } else if (lower.includes("fire") || lower.includes("smoke") || lower.includes("combustion") || lower.includes("आग") || lower.includes("మంటలు")) {
+        setObsCategory("Fire Safety");
+      } else if (lower.includes("dust") || lower.includes("gas") || lower.includes("ventilation") || lower.includes("हवा") || lower.includes("గాలి")) {
+        setObsCategory("Ventilation Issues");
+      } else if (lower.includes("helmet") || lower.includes("boot") || lower.includes("ppe") || lower.includes("glove")) {
+        setObsCategory("PPE Compliance");
+      }
+
+      if (lower.includes("critical") || lower.includes("danger") || lower.includes("emergency") || lower.includes("खतरनाक") || lower.includes("ప్రమాదకరం")) {
+        setObsSeverity("CRITICAL");
+      } else if (lower.includes("high") || lower.includes("severe") || lower.includes("भारी")) {
+        setObsSeverity("HIGH");
+      }
+    };
+
+    recognition.start();
+  };
 
   const handleCreateObservation = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -58,8 +139,8 @@ export const FieldDashboard: React.FC<{ onNavigate: (path: string) => void }> = 
         category: obsCategory,
         description: obsDesc,
         severity: obsSeverity,
-        latitude: 24.1988,
-        longitude: 82.6651,
+        latitude: geoCoords.lat,
+        longitude: geoCoords.lng,
       });
       setActionSuccess("Safety observation recorded successfully and logged in audit chain.");
       setObsDesc("");
@@ -160,8 +241,8 @@ export const FieldDashboard: React.FC<{ onNavigate: (path: string) => void }> = 
 
         {/* Quick GPS Timestamp Badge */}
         <div className="flex items-center gap-2 font-mono text-xs text-slate-600 bg-white px-3 py-1.5 rounded-md border border-slate-200 shadow-xs">
-          <span className="w-2 h-2 rounded-full bg-emerald-500" />
-          <span>GPS FIX: 24.1988° N, 82.6651° E</span>
+          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+          <span>GPS FIX: {geoCoords.lat}° N, {geoCoords.lng}° E</span>
         </div>
       </div>
 
@@ -346,51 +427,137 @@ export const FieldDashboard: React.FC<{ onNavigate: (path: string) => void }> = 
       {activeModal === "OBSERVATION" && (
         <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="w-full max-w-lg bg-white border border-slate-200 rounded-xl p-5 shadow-2xl space-y-4">
-            <h3 className="text-sm font-bold font-mono text-slate-900 flex items-center gap-2">
-              <AlertTriangle className="w-4 h-4 text-amber-600" />
-              <span>Record Ground Safety Observation</span>
-            </h3>
+            <div className="flex items-center justify-between border-b border-slate-200 pb-2">
+              <h3 className="text-sm font-bold font-mono text-slate-900 flex items-center gap-2">
+                <AlertTriangle className="w-4 h-4 text-amber-600" />
+                <span>{i18n[lang].title}</span>
+              </h3>
+
+              {/* Multilingual Selector */}
+              <div className="flex items-center gap-1 bg-slate-100 p-0.5 rounded border border-slate-200">
+                <button
+                  type="button"
+                  onClick={() => setLang("en")}
+                  className={`px-2 py-0.5 text-[10px] font-mono rounded font-semibold transition-colors ${
+                    lang === "en" ? "bg-white text-slate-900 shadow-xs" : "text-slate-500 hover:text-slate-800"
+                  }`}
+                >
+                  EN
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setLang("hi")}
+                  className={`px-2 py-0.5 text-[10px] font-mono rounded font-semibold transition-colors ${
+                    lang === "hi" ? "bg-white text-slate-900 shadow-xs" : "text-slate-500 hover:text-slate-800"
+                  }`}
+                >
+                  हिन्दी
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setLang("te")}
+                  className={`px-2 py-0.5 text-[10px] font-mono rounded font-semibold transition-colors ${
+                    lang === "te" ? "bg-white text-slate-900 shadow-xs" : "text-slate-500 hover:text-slate-800"
+                  }`}
+                >
+                  తెలుగు
+                </button>
+              </div>
+            </div>
+
             <form onSubmit={handleCreateObservation} className="space-y-3 text-xs">
               <div>
-                <label className="text-slate-700 font-semibold block mb-1">Hazard Category</label>
+                <label className="text-slate-700 font-semibold block mb-1">
+                  {i18n[lang].category}
+                </label>
                 <select
                   value={obsCategory}
                   onChange={(e) => setObsCategory(e.target.value)}
-                  className="w-full p-2 bg-white border border-slate-300 rounded text-slate-900"
+                  className="w-full p-2 bg-white border border-slate-300 rounded text-slate-900 focus:outline-none focus:border-slate-800"
                 >
-                  <option value="PPE Compliance">PPE Compliance</option>
-                  <option value="Unsafe Practices">Unsafe Practices</option>
-                  <option value="Unsafe Conditions">Unsafe Conditions</option>
-                  <option value="Equipment/Machinery Safety">Equipment/Machinery Safety</option>
-                  <option value="Electrical Hazards">Electrical Hazards</option>
-                  <option value="Ventilation Issues">Ventilation Issues</option>
-                  <option value="Fire Safety">Fire Safety</option>
+                  <option value="PPE Compliance">PPE Compliance (पीपीई / భద్రతా దుస్తులు)</option>
+                  <option value="Unsafe Practices">Unsafe Practices (असुरक्षित कार्य / అసురక్షిత పద్ధతులు)</option>
+                  <option value="Unsafe Conditions">Unsafe Conditions (असुरक्षित स्थिति / అసురక్షిత పరిస్థితులు)</option>
+                  <option value="Equipment/Machinery Safety">Equipment/Machinery Safety (उपकरण सुरक्षा / యంత్రాల భద్రత)</option>
+                  <option value="Electrical Hazards">Electrical Hazards (विद्युत खतरा / విద్యుత్ ప్రమాదాలు)</option>
+                  <option value="Ventilation Issues">Ventilation Issues (वायु संचार / వెంటిలేషన్)</option>
+                  <option value="Fire Safety">Fire Safety (अग्नि सुरक्षा / అగ్ని భద్రత)</option>
                 </select>
               </div>
+
               <div>
-                <label className="text-slate-700 font-semibold block mb-1">Observation Description *</label>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="text-slate-700 font-semibold">
+                    {i18n[lang].desc}
+                  </label>
+                  {/* Voice Input Button */}
+                  <button
+                    type="button"
+                    onClick={startVoiceInput}
+                    className={`flex items-center gap-1.5 px-2 py-0.5 rounded text-[11px] font-mono font-semibold transition-all ${
+                      isListening
+                        ? "bg-red-500 text-white animate-pulse"
+                        : "bg-indigo-50 border border-indigo-200 text-indigo-700 hover:bg-indigo-100"
+                    }`}
+                  >
+                    {isListening ? (
+                      <>
+                        <Radio className="w-3.5 h-3.5 animate-spin" />
+                        <span>Listening (Speak now)...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Mic className="w-3.5 h-3.5 text-indigo-600" />
+                        <span>Voice Dictate (बोलें / మాట్లాడండి)</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+
                 <textarea
                   required
                   rows={3}
-                  placeholder="Describe ground hazard observed..."
+                  placeholder={
+                    lang === "hi"
+                      ? "खतरे का विवरण लिखें या माइक दबाकर बोलें (उदा: 6.6kV केबल का डैमेज होना)..."
+                      : lang === "te"
+                      ? "ప్రమాద వివరాలను నమోదు చేయండి లేదా మైక్ నొక్కండి..."
+                      : "Describe ground hazard or click Voice Dictate to speak..."
+                  }
                   value={obsDesc}
                   onChange={(e) => setObsDesc(e.target.value)}
-                  className="w-full p-2 bg-white border border-slate-300 rounded text-slate-900"
+                  className="w-full p-2 bg-white border border-slate-300 rounded text-slate-900 focus:outline-none focus:border-slate-800"
                 />
+                <span className="text-[10px] text-slate-500 block mt-0.5">
+                  AI keyword classification automatically identifies hazard category and statutory urgency.
+                </span>
               </div>
+
               <div>
-                <label className="text-slate-700 font-semibold block mb-1">Severity Level</label>
+                <label className="text-slate-700 font-semibold block mb-1">
+                  {i18n[lang].severity}
+                </label>
                 <select
                   value={obsSeverity}
                   onChange={(e) => setObsSeverity(e.target.value)}
-                  className="w-full p-2 bg-white border border-slate-300 rounded text-slate-900"
+                  className="w-full p-2 bg-white border border-slate-300 rounded text-slate-900 focus:outline-none focus:border-slate-800"
                 >
-                  <option value="LOW">LOW</option>
-                  <option value="MEDIUM">MEDIUM</option>
-                  <option value="HIGH">HIGH</option>
-                  <option value="CRITICAL">CRITICAL</option>
+                  <option value="LOW">LOW (निम्न / తక్కువ)</option>
+                  <option value="MEDIUM">MEDIUM (मध्यम / మధ్యస్థ)</option>
+                  <option value="HIGH">HIGH (उच्च / ఎక్కువ)</option>
+                  <option value="CRITICAL">CRITICAL (अति गंभीर / అత్యంత ప్రమాదకరం)</option>
                 </select>
               </div>
+
+              {/* Live Geotag Stamp Info */}
+              <div className="p-2.5 rounded bg-slate-50 border border-slate-200 text-[11px] text-slate-600 flex items-center justify-between font-mono">
+                <span className="flex items-center gap-1.5">
+                  <MapPin className="w-3.5 h-3.5 text-slate-500" />
+                  <span>GPS: {geoCoords.lat}° N, {geoCoords.lng}° E</span>
+                </span>
+                <span className="text-emerald-700 font-semibold">Auto-Geotagged</span>
+              </div>
+
               <div className="flex justify-end gap-2 pt-2">
                 <button
                   type="button"
@@ -403,7 +570,7 @@ export const FieldDashboard: React.FC<{ onNavigate: (path: string) => void }> = 
                   type="submit"
                   className="px-4 py-1.5 rounded bg-slate-900 hover:bg-black font-medium text-white shadow-xs"
                 >
-                  Submit Observation
+                  {i18n[lang].submit}
                 </button>
               </div>
             </form>

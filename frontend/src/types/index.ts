@@ -314,3 +314,84 @@ export interface AuditVerificationResult {
     block_hash?: string;
   }>;
 }
+
+export interface LifecycleStage {
+  step: number;
+  title: string;
+  role: string;
+  actor: string;
+  timestamp: string | null;
+  status: "COMPLETED" | "IN_PROGRESS" | "PENDING_REVIEW" | "PENDING";
+  action_performed: string;
+  details: Record<string, any>;
+}
+
+export interface ComplianceLifecycleData {
+  issue_details: {
+    issue_id: string;
+    mine_id: number;
+    mine_name: string;
+    location: string;
+    category: string;
+    regulation: string;
+    severity: string;
+    status: string;
+    date_detected: string;
+    responsible_person: string;
+    due_date: string;
+    evidence_photo_url?: string;
+  };
+  lifecycle_timeline: LifecycleStage[];
+  current_step: number;
+}
+
+export interface EarlyWarning {
+  id: string;
+  title: string;
+  risk_level: "CRITICAL" | "HIGH" | "MEDIUM" | "LOW";
+  risk_score: number;
+  mine_id: number;
+  mine_name: string;
+  category: string;
+  detected_pattern: string;
+  reason: string;
+  contributing_factors: string[];
+  recommended_action: string;
+  responsible_role: string;
+  current_status: string;
+  related_entity: string;
+  related_id: string;
+}
+
+export interface ContractorGovernanceProfile {
+  contractor: {
+    id: number;
+    code: string;
+    company_name: string;
+    department: string;
+    contact_person: string;
+    email: string;
+    phone: string;
+    contract_period: string;
+    status: string;
+    operating_mine: string;
+  };
+  compliance_profile: {
+    compliance_score: number;
+    safety_observations_count: number;
+    open_violations_count: number;
+    overdue_actions_count: number;
+    active_workforce_count: number;
+    training_compliance_pct: number;
+    attendance_compliance_pct: number;
+    valid_statutory_documents: number;
+    expired_missing_documents: number;
+  };
+  ai_risk_assessment: {
+    risk_score: number;
+    risk_tier: string;
+    contributing_factors: string[];
+    recommended_action: string;
+  };
+}
+

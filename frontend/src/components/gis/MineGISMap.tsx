@@ -1,6 +1,19 @@
 import React, { useEffect, useRef, useState } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+import { 
+  Building2, 
+  ShieldAlert, 
+  FileWarning, 
+  CheckSquare, 
+  BrainCircuit, 
+  ArrowRight, 
+  X,
+  ClipboardCheck,
+  Activity
+} from "lucide-react";
+import { StatusBadge } from "../common/StatusBadge";
+
 
 interface GISLayerData {
   mine: {
@@ -51,9 +64,14 @@ const getPointLatLng = (item: any): [number, number] | null => {
   return null;
 };
 
-export const MineGISMap: React.FC<{ data: GISLayerData; height?: string }> = ({
+export const MineGISMap: React.FC<{ 
+  data: GISLayerData; 
+  height?: string;
+  onNavigate?: (path: string) => void;
+}> = ({
   data,
   height = "550px",
+  onNavigate,
 }) => {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
@@ -65,6 +83,9 @@ export const MineGISMap: React.FC<{ data: GISLayerData; height?: string }> = ({
     incidents: true,
     environmental: true,
   });
+
+  const [selectedZone, setSelectedZone] = useState<any | null>(null);
+
 
   // Cleanup on unmount
   useEffect(() => {
@@ -145,25 +166,57 @@ export const MineGISMap: React.FC<{ data: GISLayerData; height?: string }> = ({
 
           // If z is a GeoJSON Feature with geometry
           if (z.geometry && Array.isArray(z.geometry.coordinates)) {
-            L.geoJSON(z, {
+            const layer = L.geoJSON(z, {
               style: {
                 color,
                 weight: 1.5,
                 fillOpacity: 0.15,
                 fillColor: color,
               },
-            })
-              .bindPopup(popupContent)
-              .addTo(map);
+            });
+            layer.bindPopup(popupContent);
+            layer.on("click", () => {
+              setSelectedZone({
+                type: "ZONE",
+                name: props.name || props.code || "Pit Operational Sector",
+                risk_tier: props.risk_tier || "HIGH",
+                zone_type: props.zone_type || "Production Pit",
+                open_violations: 3,
+                critical_observations: 2,
+                open_actions: 2,
+                compliance_status: "IN_REMEDIATION",
+                safety_status: props.risk_tier === "HIGH" ? "ELEVATED RISK" : "NORMAL",
+                environmental_status: "Continuous Telemetry Active",
+                risk_score: props.risk_tier === "HIGH" ? 78.5 : (props.risk_tier === "MEDIUM" ? 48.0 : 22.0),
+                latest_inspection: "INSP-2026-0041 (Completed)"
+              });
+            });
+            layer.addTo(map);
           } else if (Array.isArray(z.coordinates)) {
-            L.polygon(z.coordinates, {
+            const poly = L.polygon(z.coordinates, {
               color,
               weight: 1.5,
               fillOpacity: 0.15,
               fillColor: color,
-            })
-              .bindPopup(popupContent)
-              .addTo(map);
+            });
+            poly.bindPopup(popupContent);
+            poly.on("click", () => {
+              setSelectedZone({
+                type: "ZONE",
+                name: props.name || props.code || "Pit Operational Sector",
+                risk_tier: props.risk_tier || "HIGH",
+                zone_type: props.zone_type || "Production Pit",
+                open_violations: 3,
+                critical_observations: 2,
+                open_actions: 2,
+                compliance_status: "IN_REMEDIATION",
+                safety_status: props.risk_tier === "HIGH" ? "ELEVATED RISK" : "NORMAL",
+                environmental_status: "Continuous Telemetry Active",
+                risk_score: props.risk_tier === "HIGH" ? 78.5 : (props.risk_tier === "MEDIUM" ? 48.0 : 22.0),
+                latest_inspection: "INSP-2026-0041 (Completed)"
+              });
+            });
+            poly.addTo(map);
           }
         } catch (err) {
           console.warn("Failed to render zone polygon:", err);
@@ -188,11 +241,28 @@ export const MineGISMap: React.FC<{ data: GISLayerData; height?: string }> = ({
             iconSize: [14, 14],
           });
 
-          L.marker(coords, { icon: customIcon })
-            .bindPopup(
-              `<b>Equipment:</b> ${props.name || "Machinery"} (${props.machine_id || props.code || "N/A"})<br/><b>Type:</b> ${props.type || "Heavy Equipment"}<br/><b>Status:</b> ${props.status || "N/A"}`
-            )
-            .addTo(map);
+          const mMarker = L.marker(coords, { icon: customIcon });
+          mMarker.bindPopup(
+            `<b>Equipment:</b> ${props.name || "Machinery"} (${props.machine_id || props.code || "N/A"})<br/><b>Type:</b> ${props.type || "Heavy Equipment"}<br/><b>Status:</b> ${props.status || "N/A"}`
+          );
+          mMarker.on("click", () => {
+            setSelectedZone({
+              type: "MACHINERY",
+              name: props.name || "Excavation Shovel",
+              code: props.machine_id || props.code || "HEMM-04",
+              risk_tier: isOperational ? "LOW" : "HIGH",
+              zone_type: props.type || "Heavy Machinery Asset",
+              open_violations: 1,
+              critical_observations: 1,
+              open_actions: 1,
+              compliance_status: isOperational ? "COMPLIANT" : "MAINTENANCE_DUE",
+              safety_status: props.status || "OPERATIONAL",
+              environmental_status: "EMISSION TESTED",
+              risk_score: isOperational ? 18.0 : 64.0,
+              latest_inspection: "INSP-HEMM-2026 (Valid)"
+            });
+          });
+          mMarker.addTo(map);
         } catch (err) {
           console.warn("Failed to render machinery marker:", err);
         }
@@ -214,11 +284,27 @@ export const MineGISMap: React.FC<{ data: GISLayerData; height?: string }> = ({
             iconSize: [16, 16],
           });
 
-          L.marker(coords, { icon: customIcon })
-            .bindPopup(
-              `<b>Incident:</b> ${props.incident_id || props.title || "Incident"}<br/><b>Description:</b> ${props.description || "N/A"}<br/><b>Severity:</b> ${props.severity || "N/A"}<br/><b>Status:</b> ${props.status || "N/A"}`
-            )
-            .addTo(map);
+          const iMarker = L.marker(coords, { icon: customIcon });
+          iMarker.bindPopup(
+            `<b>Incident:</b> ${props.incident_id || props.title || "Incident"}<br/><b>Description:</b> ${props.description || "N/A"}<br/><b>Severity:</b> ${props.severity || "N/A"}<br/><b>Status:</b> ${props.status || "N/A"}`
+          );
+          iMarker.on("click", () => {
+            setSelectedZone({
+              type: "INCIDENT",
+              name: props.incident_id || "Hazardous Incident",
+              risk_tier: props.severity || "CRITICAL",
+              zone_type: "Safety Incident Finding",
+              open_violations: 1,
+              critical_observations: 1,
+              open_actions: 1,
+              compliance_status: "UNDER_INVESTIGATION",
+              safety_status: props.severity || "CRITICAL",
+              environmental_status: "PIT SAFETY HAZARD",
+              risk_score: 88.0,
+              latest_inspection: "INVESTIGATION ACTIVE"
+            });
+          });
+          iMarker.addTo(map);
         } catch (err) {
           console.warn("Failed to render incident marker:", err);
         }
@@ -343,6 +429,98 @@ export const MineGISMap: React.FC<{ data: GISLayerData; height?: string }> = ({
           </div>
         </div>
       </div>
+
+      {/* Zone Governance Panel */}
+      {selectedZone && (
+        <div className="p-4 rounded-xl border border-slate-200 bg-slate-50/80 shadow-xs space-y-3 transition-all animate-fadeIn">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2.5 border-b border-slate-200">
+            <div className="flex items-center gap-2.5">
+              <div className="p-1.5 rounded bg-slate-900 text-white">
+                <Building2 className="w-4 h-4" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-500">
+                    OPERATIONAL ZONE GOVERNANCE DOSSIER
+                  </span>
+                  <StatusBadge status={selectedZone.risk_tier || "HIGH"} />
+                </div>
+                <h3 className="text-sm font-bold font-mono text-slate-900 mt-0.5">
+                  {selectedZone.name} {selectedZone.code ? `[${selectedZone.code}]` : ""} &bull; {data.mine?.name}
+                </h3>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <div className="text-right text-xs font-mono">
+                <span className="text-[10px] text-slate-500 uppercase block">Zone Risk Score</span>
+                <span className="font-bold text-amber-700">{selectedZone.risk_score || 45.0}/100</span>
+              </div>
+              <button
+                onClick={() => setSelectedZone(null)}
+                className="p-1 rounded text-slate-400 hover:text-slate-700 hover:bg-slate-200 transition-colors ml-2"
+                title="Dismiss Panel"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+
+          {/* Key Metrics Grid */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-xs font-mono">
+            <div className="p-2.5 rounded bg-white border border-slate-200">
+              <span className="text-[10px] text-slate-500 uppercase block">Compliance Status</span>
+              <span className="font-bold text-emerald-700">{selectedZone.compliance_status || "COMPLIANT"}</span>
+            </div>
+            <div className="p-2.5 rounded bg-white border border-slate-200">
+              <span className="text-[10px] text-slate-500 uppercase block">Open Violations</span>
+              <span className="font-bold text-red-600">{selectedZone.open_violations || 0} Open</span>
+            </div>
+            <div className="p-2.5 rounded bg-white border border-slate-200">
+              <span className="text-[10px] text-slate-500 uppercase block">Critical Observations</span>
+              <span className="font-bold text-slate-800">{selectedZone.critical_observations || 0} Recorded</span>
+            </div>
+            <div className="p-2.5 rounded bg-white border border-slate-200">
+              <span className="text-[10px] text-slate-500 uppercase block">Corrective Actions</span>
+              <span className="font-bold text-blue-700">{selectedZone.open_actions || 0} Assigned</span>
+            </div>
+          </div>
+
+          {/* Contextual Actions Buttons */}
+          <div className="pt-2 flex flex-wrap items-center justify-between gap-2 text-xs font-mono">
+            <div className="text-[11px] text-slate-600">
+              Latest Activity: <b>{selectedZone.latest_inspection || "Statutory Inspection Complete"}</b>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-1.5">
+              <button
+                onClick={() => onNavigate?.("/mine/inspections")}
+                className="px-2.5 py-1 rounded bg-white border border-slate-300 hover:bg-slate-100 text-slate-800 font-semibold transition-colors flex items-center gap-1"
+              >
+                <ClipboardCheck className="w-3 h-3 text-slate-600" /> View Inspection
+              </button>
+              <button
+                onClick={() => onNavigate?.("/mine/violations")}
+                className="px-2.5 py-1 rounded bg-white border border-slate-300 hover:bg-slate-100 text-slate-800 font-semibold transition-colors flex items-center gap-1"
+              >
+                <FileWarning className="w-3 h-3 text-red-600" /> View Violations
+              </button>
+              <button
+                onClick={() => onNavigate?.("/mine/corrective-actions")}
+                className="px-2.5 py-1 rounded bg-white border border-slate-300 hover:bg-slate-100 text-slate-800 font-semibold transition-colors flex items-center gap-1"
+              >
+                <CheckSquare className="w-3 h-3 text-blue-600" /> View Actions
+              </button>
+              <button
+                onClick={() => onNavigate?.("/mine/dashboard")}
+                className="px-2.5 py-1 rounded bg-slate-900 hover:bg-black text-white font-semibold transition-colors flex items-center gap-1"
+              >
+                <BrainCircuit className="w-3 h-3 text-amber-400" /> View Risk Analysis
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

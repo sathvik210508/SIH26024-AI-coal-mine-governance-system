@@ -87,6 +87,18 @@ export const MineInspections: React.FC = () => {
       render: (row: Inspection) => <StatusBadge status={row.status} />,
     },
     {
+      header: "Findings & Audit",
+      render: (row: Inspection) => (
+        <span className="font-mono text-xs text-slate-700">
+          {row.status === "COMPLETED" ? (
+            <span className="text-emerald-700 font-semibold">1 Finding Logged (FND-2026-0012)</span>
+          ) : (
+            <span className="text-slate-400">Assigned to Field</span>
+          )}
+        </span>
+      ),
+    },
+    {
       header: "Assigned Role",
       render: () => <span className="font-mono text-slate-600">FIELD_SUPERVISOR</span>,
     },

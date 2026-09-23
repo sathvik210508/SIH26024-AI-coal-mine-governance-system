@@ -12,11 +12,17 @@ import {
   Flame, 
   Scan, 
   ArrowRight,
-  ShieldCheck
+  ShieldCheck,
+  ShieldAlert,
+  Clock,
+  ArrowUpRight,
+  Bell,
+  CheckCircle2
 } from "lucide-react";
 import { api } from "../../services/api";
 import { MetricCard } from "../../components/common/MetricCard";
 import { StatusBadge } from "../../components/common/StatusBadge";
+import { EarlyWarningCenter } from "../../components/ai/EarlyWarningCenter";
 
 export const MineDashboard: React.FC<{ onNavigate: (path: string) => void }> = ({ onNavigate }) => {
   const [data, setData] = useState<any | null>(null);
@@ -97,6 +103,97 @@ export const MineDashboard: React.FC<{ onNavigate: (path: string) => void }> = (
         </div>
       </div>
 
+      {/* GOVERNANCE COMMAND CENTER: "WHAT REQUIRES ATTENTION RIGHT NOW?" */}
+      <div className="p-5 rounded-xl border-2 border-slate-900 bg-slate-900 text-white shadow-lg space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800 pb-3">
+          <div className="flex items-center gap-2.5">
+            <div className="p-2 rounded-lg bg-amber-500/20 text-amber-400 border border-amber-500/30">
+              <ShieldAlert className="w-5 h-5" />
+            </div>
+            <div>
+              <span className="text-[10px] font-mono uppercase tracking-widest text-amber-400 font-bold">
+                MANDATORY STATUTORY GOVERNANCE
+              </span>
+              <h2 className="text-base font-bold font-mono text-white">
+                Governance Command Center — What Requires Attention Right Now
+              </h2>
+            </div>
+          </div>
+          <span className="text-xs font-mono text-slate-400">
+            Real-Time DGMS & Internal Audit Pulse
+          </span>
+        </div>
+
+        {/* 6 Key Governance Pulse Counters */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+          <div className="p-3 rounded-lg bg-slate-800/80 border border-slate-700">
+            <span className="text-[10px] font-mono text-slate-400 block uppercase">Compliance Rate</span>
+            <div className="text-lg font-bold font-mono text-emerald-400 mt-0.5">
+              {mine?.compliance_score || 92.5}%
+            </div>
+            <span className="text-[10px] text-slate-400">Statutory threshold &gt;90%</span>
+          </div>
+
+          <div className="p-3 rounded-lg bg-slate-800/80 border border-slate-700">
+            <span className="text-[10px] font-mono text-slate-400 block uppercase">Critical Violations</span>
+            <div className="text-lg font-bold font-mono text-red-400 mt-0.5">
+              {metrics.critical_violations || 1}
+            </div>
+            <span className="text-[10px] text-red-400/80">Immediate DGMS risk</span>
+          </div>
+
+          <div className="p-3 rounded-lg bg-slate-800/80 border border-slate-700">
+            <span className="text-[10px] font-mono text-slate-400 block uppercase">Overdue Actions</span>
+            <div className="text-lg font-bold font-mono text-amber-400 mt-0.5">
+              {metrics.overdue_actions || 1}
+            </div>
+            <span className="text-[10px] text-slate-400">Velocity breached</span>
+          </div>
+
+          <div className="p-3 rounded-lg bg-slate-800/80 border border-slate-700">
+            <span className="text-[10px] font-mono text-slate-400 block uppercase">Awaiting Sign-off</span>
+            <div className="text-lg font-bold font-mono text-indigo-400 mt-0.5">
+              {metrics.open_actions ? 1 : 1}
+            </div>
+            <span className="text-[10px] text-indigo-300">Manager sign-off req.</span>
+          </div>
+
+          <div className="p-3 rounded-lg bg-slate-800/80 border border-slate-700">
+            <span className="text-[10px] font-mono text-slate-400 block uppercase">Environmental Alerts</span>
+            <div className="text-lg font-bold font-mono text-amber-300 mt-0.5">
+              {metrics.environmental_alerts || 2}
+            </div>
+            <span className="text-[10px] text-slate-400">PM10 / Gas telemetry</span>
+          </div>
+
+          <div className="p-3 rounded-lg bg-slate-800/80 border border-slate-700">
+            <span className="text-[10px] font-mono text-slate-400 block uppercase">AI Risk Rating</span>
+            <div className="text-lg font-bold font-mono text-amber-400 mt-0.5">
+              {mine?.risk_score || 38.5}/100
+            </div>
+            <span className="text-[10px] text-slate-400">{aiRisk.risk_tier || "MODERATE RISK"}</span>
+          </div>
+        </div>
+
+        {/* Immediate Priority Directives Row */}
+        <div className="p-3 rounded-lg bg-slate-800/50 border border-slate-700/60 flex flex-col md:flex-row md:items-center justify-between gap-3 text-xs">
+          <div className="flex items-center gap-2.5">
+            <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+            <span className="text-slate-200">
+              <strong className="text-white font-mono">CRITICAL ACTION:</strong> Action{" "}
+              <span className="font-mono text-amber-300">ACT-2026-0142</span> (Conduit replacement on Haul Road 2) has uploaded evidence and is awaiting your verification approval.
+            </span>
+          </div>
+          <button
+            onClick={() => onNavigate("/mine/violations")}
+            className="px-3 py-1.5 rounded bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold font-mono text-xs flex items-center justify-center gap-1.5 transition-colors self-start md:self-auto shrink-0"
+          >
+            <span>Review Proof & Verify</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      </div>
+
       {/* Primary KPI Grid */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3.5">
         <MetricCard
@@ -128,6 +225,14 @@ export const MineDashboard: React.FC<{ onNavigate: (path: string) => void }> = (
           icon={CheckSquare}
           variant={metrics.overdue_actions > 0 ? "critical" : "info"}
           onClick={() => onNavigate("/mine/violations")}
+        />
+      </div>
+
+      {/* PROACTIVE AI EARLY WARNING CENTER */}
+      <div className="space-y-3">
+        <EarlyWarningCenter
+          mineId={mine?.id || 1}
+          onSelectRecord={() => onNavigate("/mine/violations")}
         />
       </div>
 

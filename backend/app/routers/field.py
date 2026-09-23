@@ -191,8 +191,10 @@ def submit_field_inspection(
     findings_created = []
     for item in checklist_results:
         if item.get("status") == "NON_COMPLIANT":
-            count = db.query(InspectionFinding).count() + 1
-            finding_id = f"FND-2026-{count:04d}"
+            f_num = db.query(InspectionFinding).count() + 1
+            while db.query(InspectionFinding).filter(InspectionFinding.finding_id == f"FND-2026-{f_num:04d}").first():
+                f_num += 1
+            finding_id = f"FND-2026-{f_num:04d}"
             finding = InspectionFinding(
                 finding_id=finding_id,
                 inspection_id=insp.id,
@@ -385,6 +387,9 @@ def get_field_corrective_actions(user: User = Depends(field_guard), db: Session 
         CorrectiveAction.mine_id == mine_id
     ).order_by(CorrectiveAction.deadline.asc()).all()
 
+
+from app.services.ai_service import verify_evidence_ai
+
 @router.patch("/corrective-actions/{action_id}")
 def update_field_corrective_action(
     action_id: int,
@@ -396,21 +401,30 @@ def update_field_corrective_action(
     if not action:
         raise HTTPException(status_code=404, detail="Corrective action not found")
         
+    # Perform prototype AI Evidence Verification
+    ai_verification = verify_evidence_ai(
+        file_path=payload.file_path,
+        latitude=payload.latitude,
+        longitude=payload.longitude,
+        action_id=action.id,
+        remarks=payload.remarks
+    )
+    
     evidence = CorrectiveActionEvidence(
         action_id=action.id,
         uploaded_by_id=user.id,
         file_path=payload.file_path,
         file_type="IMAGE",
-        remarks=payload.remarks,
+        remarks=f"{payload.remarks or 'Field completion evidence'}. [AI Check: {ai_verification['status']} (Confidence: {ai_verification['confidence_percentage']}%)].",
         latitude=payload.latitude,
         longitude=payload.longitude,
-        uploaded_at=datetime.datetime.utcnow()
+        uploaded_at=datetime.datetime.now(datetime.timezone.utc)
     )
     db.add(evidence)
     
     # CRITICAL RULE: Evidence upload transitions action to AWAITING_VERIFICATION, NEVER auto-closes!
     action.status = "AWAITING_VERIFICATION"
-    action.completed_at = datetime.datetime.utcnow()
+    action.completed_at = datetime.datetime.now(datetime.timezone.utc)
     db.commit()
     
     # Notify Mine Manager
@@ -420,7 +434,7 @@ def update_field_corrective_action(
             db=db,
             user_id=m.id,
             title=f"Verification Required: {action.action_id}",
-            message=f"Field completed work and uploaded evidence for {action.action_id}. Pending manager verification.",
+            message=f"Field completed work and uploaded evidence for {action.action_id}. AI Status: {ai_verification['status']}. Pending manager verification.",
             notification_type="VERIFICATION_REQUEST",
             priority="HIGH",
             related_entity="ACTION",
@@ -433,7 +447,11 @@ def update_field_corrective_action(
         entity_name="CORRECTIVE_ACTION",
         entity_id=action.action_id,
         action="SUBMIT_EVIDENCE",
-        metadata={"evidence_path": payload.file_path, "status": "AWAITING_VERIFICATION"}
+        metadata={
+            "evidence_path": payload.file_path,
+            "status": "AWAITING_VERIFICATION",
+            "ai_verification": ai_verification
+        }
     )
     return {
         "status": "success",
@@ -442,10 +460,9 @@ def update_field_corrective_action(
             "action_id": action.action_id,
             "status": action.status,
             "description": action.description
-        }
+        },
+        "ai_verification": ai_verification
     }
-
-@router.post("/attendance")
 def record_worker_attendance(
     payload: AttendanceLog,
     user: User = Depends(field_guard),

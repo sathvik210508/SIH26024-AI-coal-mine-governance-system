@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { BarChart3, RefreshCw, Trophy, AlertTriangle, ShieldCheck, Download } from "lucide-react";
+import { BarChart3, RefreshCw, Trophy, AlertTriangle, ShieldCheck, Download, BrainCircuit, Sparkles, TrendingDown, Users2, FileSpreadsheet } from "lucide-react";
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Legend, CartesianGrid } from "recharts";
 import { api } from "../../services/api";
 import { StatusBadge } from "../../components/common/StatusBadge";
@@ -7,13 +7,19 @@ import { DataTable } from "../../components/common/DataTable";
 
 export const CorporateComparison: React.FC = () => {
   const [mines, setMines] = useState<any[]>([]);
+  const [insights, setInsights] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [exporting, setExporting] = useState(false);
 
   const fetchData = async () => {
     setLoading(true);
     try {
-      const res = await api.get("/corporate/comparison");
-      setMines(res.data || []);
+      const [compRes, insRes] = await Promise.all([
+        api.get("/corporate/comparison"),
+        api.get("/corporate/comparison/insights"),
+      ]);
+      setMines(compRes.data || []);
+      setInsights(insRes.data || null);
     } catch (err) {
       console.error("Failed to load comparison:", err);
     } finally {
@@ -25,12 +31,30 @@ export const CorporateComparison: React.FC = () => {
     fetchData();
   }, []);
 
+  const handleExport = async (format: "PDF" | "EXCEL") => {
+    setExporting(true);
+    try {
+      const res = await api.post("/reports/generate", {
+        report_type: "CORPORATE_EXECUTIVE_SUMMARY",
+        file_format: format,
+      });
+      if (res.data?.download_url) {
+        window.open(res.data.download_url, "_blank");
+      }
+    } catch (err) {
+      alert("Failed to export report.");
+    } finally {
+      setExporting(false);
+    }
+  };
+
   const chartData = mines.map((m) => ({
     name: m.code || m.mine_name.split(" ")[0],
     fullName: m.mine_name,
     Compliance: m.compliance_score,
     Risk: m.risk_score,
     SafetyIndex: m.safety_index,
+    ContractorComp: m.contractor_compliance || 85.0,
   }));
 
   // Sort by compliance descending to find top performer
@@ -44,10 +68,10 @@ export const CorporateComparison: React.FC = () => {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 pb-4">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-xl font-bold text-slate-900 tracking-tight">
+            <h1 className="text-xl font-bold font-mono text-slate-900 tracking-tight">
               6-Mine Operations Comparison Matrix
             </h1>
-            <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-700 border border-slate-200 uppercase tracking-wider">
+            <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-slate-100 text-slate-700 border border-slate-200 uppercase tracking-wider">
               Cross-Portfolio Audit
             </span>
           </div>
@@ -57,6 +81,24 @@ export const CorporateComparison: React.FC = () => {
         </div>
 
         <div className="flex items-center gap-2">
+          <button
+            onClick={() => handleExport("PDF")}
+            disabled={exporting}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-mono font-medium shadow-xs"
+          >
+            <Download className="w-3.5 h-3.5 text-slate-600" />
+            <span>Export PDF</span>
+          </button>
+
+          <button
+            onClick={() => handleExport("EXCEL")}
+            disabled={exporting}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-mono font-medium shadow-xs"
+          >
+            <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-600" />
+            <span>Export Excel</span>
+          </button>
+
           <button
             onClick={fetchData}
             className="p-2 rounded-lg bg-white border border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-colors shadow-xs"
@@ -108,6 +150,56 @@ export const CorporateComparison: React.FC = () => {
               </div>
             </div>
             <StatusBadge status={lowestMine?.risk_tier || "HIGH"} />
+          </div>
+        </div>
+      )}
+
+      {/* AI Comparative Disparity & Portfolio Insights Card */}
+      {insights && (
+        <div className="p-5 rounded-xl border border-indigo-200 bg-white shadow-xs space-y-3">
+          <div className="flex items-center justify-between border-b border-indigo-100 pb-2.5">
+            <div className="flex items-center gap-2">
+              <BrainCircuit className="w-5 h-5 text-indigo-600" />
+              <h2 className="text-xs font-bold font-mono text-slate-900 uppercase tracking-wider">
+                AI Cross-Mine Disparity & Behavioral Analysis
+              </h2>
+            </div>
+            <div className="flex items-center gap-2 font-mono text-xs">
+              <span className="text-slate-500">Compliance Disparity Gap:</span>
+              <span className="px-2 py-0.5 rounded bg-amber-50 text-amber-800 font-bold border border-amber-200">
+                Δ {insights.disparity_gap_compliance}%
+              </span>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+            <div className="p-3 bg-slate-50 rounded-lg border border-slate-200 space-y-2">
+              <span className="text-[10px] font-mono text-slate-500 uppercase font-bold block">
+                STATUTORY COMPLIANCE PATTERNS
+              </span>
+              <ul className="space-y-1.5 text-slate-700">
+                {(insights.insights || []).map((ins: string, idx: number) => (
+                  <li key={idx} className="flex items-start gap-1.5">
+                    <span className="text-indigo-600 mt-0.5">•</span>
+                    <span>{ins}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <div className="p-3 bg-slate-50 rounded-lg border border-slate-200 space-y-2">
+              <span className="text-[10px] font-mono text-slate-500 uppercase font-bold block">
+                CONTRACTOR & ECOSYSTEM RISK
+              </span>
+              <ul className="space-y-1.5 text-slate-700">
+                {(insights.contractor_governance_insights || []).map((cins: string, idx: number) => (
+                  <li key={idx} className="flex items-start gap-1.5">
+                    <span className="text-emerald-600 mt-0.5">•</span>
+                    <span>{cins}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
         </div>
       )}
@@ -227,9 +319,28 @@ export const CorporateComparison: React.FC = () => {
               ),
             },
             {
-              header: "Incidents Logged",
+              header: "Contractor Compliance",
               accessor: (row: any) => (
-                <span className="font-mono text-xs text-slate-700">{row.incidents}</span>
+                <div className="font-mono text-xs">
+                  <span className="font-semibold text-slate-800">{row.contractor_compliance || 85.0}%</span>
+                  <span className="text-[10px] text-slate-500 block">({row.contractors_count || 4} vendors)</span>
+                </div>
+              ),
+            },
+            {
+              header: "Env Alerts",
+              accessor: (row: any) => (
+                <span className={`font-mono text-xs font-semibold ${row.environmental_alerts > 0 ? "text-amber-700" : "text-slate-500"}`}>
+                  {row.environmental_alerts || 0}
+                </span>
+              ),
+            },
+            {
+              header: "AI Strategic Directive",
+              accessor: (row: any) => (
+                <span className="text-[11px] text-slate-600 line-clamp-2 max-w-xs italic">
+                  {row.ai_insight || "Operations within standard statutory parameters."}
+                </span>
               ),
             },
           ]}

@@ -7,12 +7,48 @@ from app.models.auth import User
 from app.models.organization import Mine
 from app.models.ai import AIAnomaly, AIRecurringPattern, AIRecommendation, AIPrediction
 from app.auth.jwt import get_current_user
-from app.services.ai_service import calculate_mine_risk_score, detect_recurring_patterns, query_role_copilot
+from app.services.ai_service import (
+    calculate_mine_risk_score,
+    detect_recurring_patterns,
+    query_role_copilot,
+    calculate_issue_risk_score,
+    get_early_warnings,
+    verify_evidence_ai
+)
 
 router = APIRouter(prefix="/ai", tags=["AI Risk & Intelligence"])
 
 class CopilotQueryRequest(BaseModel):
     query: str
+
+@router.get("/early-warnings")
+def get_ai_early_warnings(
+    mine_id: Optional[int] = None,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Returns synthesized AI early warning cards with risk score, patterns, and recommended actions"""
+    # If user is a MINE_MANAGER, prioritize their mine unless they passed a parameter
+    effective_mine_id = mine_id
+    if user.role_code == "MINE_MANAGER" and not effective_mine_id:
+        effective_mine_id = user.mine_id
+    return get_early_warnings(db=db, mine_id=effective_mine_id)
+
+@router.get("/risk-analysis/{entity_type}/{entity_id}")
+def get_entity_risk_analysis(
+    entity_type: str,
+    entity_id: int,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Provides item-level explainable risk scoring with factor weights and recommended action"""
+    if entity_type.lower() in ["violation", "vio"]:
+        return calculate_issue_risk_score(db=db, violation_id=entity_id)
+    elif entity_type.lower() in ["action", "corrective-action", "act"]:
+        return calculate_issue_risk_score(db=db, action_id=entity_id)
+    else:
+        # Fallback to mine risk
+        return calculate_mine_risk_score(db=db, mine_id=entity_id)
 
 @router.get("/risk")
 def get_ai_risk_overview(mine_id: Optional[int] = None, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
@@ -52,3 +88,4 @@ def ask_ai_copilot(
     db: Session = Depends(get_db)
 ):
     return query_role_copilot(db=db, user=user, query=payload.query)
+

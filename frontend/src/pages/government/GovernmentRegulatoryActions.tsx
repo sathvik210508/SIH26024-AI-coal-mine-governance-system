@@ -7,11 +7,15 @@ import {
   XCircle, 
   FileText, 
   AlertCircle,
-  ExternalLink
+  ExternalLink,
+  Download,
+  FileSpreadsheet,
+  GitCommit
 } from "lucide-react";
 import { api } from "../../services/api";
 import { StatusBadge } from "../../components/common/StatusBadge";
 import { DataTable } from "../../components/common/DataTable";
+import { ComplianceLifecycleModal } from "../../components/compliance/ComplianceLifecycleModal";
 
 export const GovernmentRegulatoryActions: React.FC = () => {
   const [actions, setActions] = useState<any[]>([]);
@@ -23,6 +27,24 @@ export const GovernmentRegulatoryActions: React.FC = () => {
   const [verifyTarget, setVerifyTarget] = useState<any | null>(null);
   const [verifyRemarks, setVerifyRemarks] = useState("");
   const [submittingVerify, setSubmittingVerify] = useState(false);
+
+  // Report generation modal
+  const [showReportModal, setShowReportModal] = useState(false);
+  const [generatingReport, setGeneratingReport] = useState(false);
+  const [reportParams, setReportParams] = useState({
+    report_type: "STATUTORY_COMPLIANCE_SUMMARY",
+    file_format: "PDF",
+    mine_id: "",
+    category: "",
+    status: "",
+    severity: "",
+  });
+
+  // Lifecycle modal
+  const [lifecycleModal, setLifecycleModal] = useState<{ isOpen: boolean; actionId: number }>({
+    isOpen: false,
+    actionId: 0,
+  });
 
   const [form, setForm] = useState({
     mine_id: 1,
@@ -48,6 +70,31 @@ export const GovernmentRegulatoryActions: React.FC = () => {
   useEffect(() => {
     fetchActions();
   }, []);
+
+  const handleGenerateReport = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setGeneratingReport(true);
+    try {
+      const payload: any = {
+        report_type: reportParams.report_type,
+        file_format: reportParams.file_format,
+      };
+      if (reportParams.mine_id) payload.mine_id = parseInt(reportParams.mine_id);
+      if (reportParams.category) payload.category = reportParams.category;
+      if (reportParams.status) payload.status = reportParams.status;
+      if (reportParams.severity) payload.severity = reportParams.severity;
+
+      const res = await api.post("/reports/generate", payload);
+      if (res.data?.download_url) {
+        window.open(res.data.download_url, "_blank");
+        setShowReportModal(false);
+      }
+    } catch (err) {
+      alert("Failed to generate statutory report.");
+    } finally {
+      setGeneratingReport(false);
+    }
+  };
 
   const handleIssue = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -95,10 +142,10 @@ export const GovernmentRegulatoryActions: React.FC = () => {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 pb-4">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-xl font-bold text-slate-900 tracking-tight">
+            <h1 className="text-xl font-bold font-mono text-slate-900 tracking-tight">
               Statutory Directives & Enforcement Orders
             </h1>
-            <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-700 border border-slate-200 uppercase tracking-wider">
+            <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-slate-100 text-slate-700 border border-slate-200 uppercase tracking-wider">
               DGMS Powers (Sec 22)
             </span>
           </div>
@@ -108,6 +155,14 @@ export const GovernmentRegulatoryActions: React.FC = () => {
         </div>
 
         <div className="flex items-center gap-2">
+          <button
+            onClick={() => setShowReportModal(true)}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-mono font-medium shadow-xs"
+          >
+            <FileText className="w-3.5 h-3.5 text-slate-600" />
+            <span>Generate Statutory Report</span>
+          </button>
+
           <button
             onClick={fetchActions}
             className="p-2 rounded-lg bg-white border border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-colors shadow-xs"
@@ -182,6 +237,15 @@ export const GovernmentRegulatoryActions: React.FC = () => {
               header: "Actions",
               accessor: (row: any) => (
                 <div className="flex items-center gap-1.5">
+                  <button
+                    onClick={() => setLifecycleModal({ isOpen: true, actionId: row.id })}
+                    className="px-2 py-1 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 font-mono text-xs flex items-center gap-1 transition-colors border border-slate-200"
+                    title="View 10-Stage Audit Trail & Merkle Root"
+                  >
+                    <GitCommit className="w-3 h-3 text-slate-600" />
+                    <span>Lifecycle</span>
+                  </button>
+
                   <button
                     onClick={() => {
                       setVerifyTarget(row);
@@ -365,6 +429,157 @@ export const GovernmentRegulatoryActions: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* Statutory Report Generation Modal */}
+      {showReportModal && (
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white border border-slate-200 rounded-xl w-full max-w-lg p-6 shadow-2xl space-y-4">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div>
+                <span className="text-[10px] font-mono text-slate-500 uppercase font-bold">MINISTRY OF COAL & DGMS</span>
+                <h3 className="font-bold text-sm text-slate-900 mt-0.5">
+                  Generate Statutory Compliance Report
+                </h3>
+              </div>
+              <button
+                onClick={() => setShowReportModal(false)}
+                className="text-slate-400 hover:text-slate-700 text-xs font-mono"
+              >
+                ✕
+              </button>
+            </div>
+
+            <form onSubmit={handleGenerateReport} className="space-y-3.5 text-xs">
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-slate-700 mb-1 font-semibold">Target Mine</label>
+                  <select
+                    value={reportParams.mine_id}
+                    onChange={(e) => setReportParams({ ...reportParams, mine_id: e.target.value })}
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-900"
+                  >
+                    <option value="">All Mines (Portfolio-Wide)</option>
+                    <option value="1">Singrauli OpenCast Mega Mine</option>
+                    <option value="2">Korba West Pit II</option>
+                    <option value="3">Jharia Deep Seam Pit 4</option>
+                    <option value="4">Talcher Horizon VII Mine</option>
+                    <option value="5">Raniganj Underground Colliery</option>
+                    <option value="6">Godavari Valley Incline 9</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-slate-700 mb-1 font-semibold">Hazard Category</label>
+                  <select
+                    value={reportParams.category}
+                    onChange={(e) => setReportParams({ ...reportParams, category: e.target.value })}
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-900"
+                  >
+                    <option value="">All Categories</option>
+                    <option value="Electrical Hazards">Electrical Hazards</option>
+                    <option value="Haul Road Safety">Haul Road Safety</option>
+                    <option value="Ventilation Issues">Ventilation Issues</option>
+                    <option value="Fire Safety">Fire Safety</option>
+                    <option value="PPE Compliance">PPE Compliance</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-slate-700 mb-1 font-semibold">Status Filter</label>
+                  <select
+                    value={reportParams.status}
+                    onChange={(e) => setReportParams({ ...reportParams, status: e.target.value })}
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-900"
+                  >
+                    <option value="">All Statuses</option>
+                    <option value="OPEN">OPEN / UNRESOLVED</option>
+                    <option value="IN_PROGRESS">IN_PROGRESS</option>
+                    <option value="AWAITING_VERIFICATION">AWAITING_VERIFICATION</option>
+                    <option value="CLOSED">CLOSED / VERIFIED</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-slate-700 mb-1 font-semibold">Severity Filter</label>
+                  <select
+                    value={reportParams.severity}
+                    onChange={(e) => setReportParams({ ...reportParams, severity: e.target.value })}
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-900"
+                  >
+                    <option value="">All Severities</option>
+                    <option value="CRITICAL">CRITICAL ONLY</option>
+                    <option value="HIGH">HIGH & CRITICAL</option>
+                    <option value="MEDIUM">MEDIUM</option>
+                    <option value="LOW">LOW</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-slate-700 mb-1 font-semibold">Export File Format</label>
+                <div className="grid grid-cols-2 gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setReportParams({ ...reportParams, file_format: "PDF" })}
+                    className={`p-2.5 rounded-lg border text-xs font-mono font-bold flex items-center justify-center gap-2 transition-all ${
+                      reportParams.file_format === "PDF"
+                        ? "bg-slate-900 text-white border-slate-900 shadow-xs"
+                        : "bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100"
+                    }`}
+                  >
+                    <FileText className="w-4 h-4 text-rose-500" />
+                    <span>Statutory PDF</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setReportParams({ ...reportParams, file_format: "EXCEL" })}
+                    className={`p-2.5 rounded-lg border text-xs font-mono font-bold flex items-center justify-center gap-2 transition-all ${
+                      reportParams.file_format === "EXCEL"
+                        ? "bg-slate-900 text-white border-slate-900 shadow-xs"
+                        : "bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100"
+                    }`}
+                  >
+                    <FileSpreadsheet className="w-4 h-4 text-emerald-500" />
+                    <span>Excel Ledger (.xlsx)</span>
+                  </button>
+                </div>
+              </div>
+
+              <div className="p-2.5 bg-slate-50 rounded-lg border border-slate-200 text-[11px] text-slate-600 font-mono">
+                Report includes official DGMS header, multi-factor risk scores, and SHA-256 cryptographic audit verification seal.
+              </div>
+
+              <div className="pt-2 flex justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowReportModal(false)}
+                  className="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={generatingReport}
+                  className="px-4 py-1.5 rounded-lg bg-slate-900 hover:bg-black text-white font-medium shadow-xs"
+                >
+                  {generatingReport ? "Generating Document..." : "Download Report"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Compliance Lifecycle Modal */}
+      <ComplianceLifecycleModal
+        isOpen={lifecycleModal.isOpen}
+        onClose={() => setLifecycleModal((prev) => ({ ...prev, isOpen: false }))}
+        entityType="action"
+        entityId={lifecycleModal.actionId}
+      />
     </div>
   );
 };
