@@ -19,6 +19,38 @@ interface GISLayerData {
   };
 }
 
+// Safely extract [lat, lng] from GeoJSON Point or flat coordinate array
+const getPointLatLng = (item: any): [number, number] | null => {
+  if (!item) return null;
+  // 1. Check GeoJSON geometry: GeoJSON Point coordinates are standard [lng, lat]
+  if (item.geometry && Array.isArray(item.geometry.coordinates)) {
+    const coords = item.geometry.coordinates;
+    if (coords.length >= 2) {
+      const [lng, lat] = coords;
+      if (typeof lat === "number" && typeof lng === "number" && !isNaN(lat) && !isNaN(lng)) {
+        return [lat, lng];
+      }
+    }
+  }
+  // 2. Check flat coordinates array
+  if (Array.isArray(item.coordinates) && item.coordinates.length >= 2) {
+    const [c0, c1] = item.coordinates;
+    if (typeof c0 === "number" && typeof c1 === "number" && !isNaN(c0) && !isNaN(c1)) {
+      if (c0 > 60 && c1 < 40) {
+        return [c1, c0]; // was [lng, lat]
+      }
+      return [c0, c1]; // is [lat, lng]
+    }
+  }
+  // 3. Check explicit latitude/longitude properties
+  const lat = item.latitude ?? item.lat ?? item.properties?.latitude ?? item.properties?.lat;
+  const lng = item.longitude ?? item.lng ?? item.properties?.longitude ?? item.properties?.lng;
+  if (typeof lat === "number" && typeof lng === "number" && !isNaN(lat) && !isNaN(lng)) {
+    return [lat, lng];
+  }
+  return null;
+};
+
 export const MineGISMap: React.FC<{ data: GISLayerData; height?: string }> = ({
   data,
   height = "550px",
@@ -34,12 +66,29 @@ export const MineGISMap: React.FC<{ data: GISLayerData; height?: string }> = ({
     environmental: true,
   });
 
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (mapInstanceRef.current) {
+        mapInstanceRef.current.remove();
+        mapInstanceRef.current = null;
+      }
+    };
+  }, []);
+
   useEffect(() => {
     if (!mapContainerRef.current || !data?.mine) return;
 
     if (!mapInstanceRef.current) {
+      const centerCoords: [number, number] =
+        Array.isArray(data.mine.center) &&
+        typeof data.mine.center[0] === "number" &&
+        typeof data.mine.center[1] === "number"
+          ? data.mine.center
+          : [24.1992, 82.6645];
+
       const map = L.map(mapContainerRef.current, {
-        center: data.mine.center || [24.1992, 82.6645],
+        center: centerCoords,
         zoom: 14,
         zoomControl: true,
       });
@@ -61,88 +110,145 @@ export const MineGISMap: React.FC<{ data: GISLayerData; height?: string }> = ({
       map.removeLayer(layer);
     });
 
-    // 1. Mine Statutory Boundary
-    if (activeLayers.boundary && data.layers.boundary) {
-      L.geoJSON(data.layers.boundary, {
-        style: {
-          color: "#0F172A",
-          weight: 2,
-          dashArray: "6, 6",
-          fillOpacity: 0.04,
-          fillColor: "#0F172A",
-        },
-      })
-        .bindPopup(`<b>Statutory Boundary:</b> ${data.mine.name}`)
-        .addTo(map);
-    }
-
-    // 2. High-Risk / Working Zones
-    if (activeLayers.zones && data.layers.zones) {
-      data.layers.zones.forEach((z: any) => {
-        const color = z.risk_tier === "HIGH" ? "#DC2626" : z.risk_tier === "MEDIUM" ? "#D97706" : "#16A34A";
-        L.polygon(z.coordinates, {
-          color,
-          weight: 1.5,
-          fillOpacity: 0.15,
-          fillColor: color,
+    // 1. Mine Statutory Boundary (GeoJSON Feature)
+    if (activeLayers.boundary && data.layers?.boundary) {
+      try {
+        L.geoJSON(data.layers.boundary, {
+          style: {
+            color: "#0F172A",
+            weight: 2,
+            dashArray: "6, 6",
+            fillOpacity: 0.04,
+            fillColor: "#0F172A",
+          },
         })
-          .bindPopup(
-            `<b>Operational Zone:</b> ${z.name}<br/><b>Risk Tier:</b> ${z.risk_tier}<br/><b>Risk Index:</b> ${z.risk_score}`
-          )
+          .bindPopup(`<b>Statutory Boundary:</b> ${data.mine?.name || "Concession Boundary"}`)
           .addTo(map);
+      } catch (err) {
+        console.warn("Failed to render boundary GeoJSON layer:", err);
+      }
+    }
+
+    // 2. High-Risk / Working Zones (GeoJSON Polygons)
+    if (activeLayers.zones && data.layers?.zones && Array.isArray(data.layers.zones)) {
+      data.layers.zones.forEach((z: any) => {
+        if (!z) return;
+        try {
+          const props = z.properties || z;
+          const color =
+            props.risk_tier === "HIGH"
+              ? "#DC2626"
+              : props.risk_tier === "MEDIUM"
+              ? "#D97706"
+              : "#16A34A";
+          const popupContent = `<b>Operational Zone:</b> ${props.name || props.code || "Zone"}<br/><b>Risk Tier:</b> ${props.risk_tier || "N/A"}<br/><b>Zone Type:</b> ${props.zone_type || "N/A"}`;
+
+          // If z is a GeoJSON Feature with geometry
+          if (z.geometry && Array.isArray(z.geometry.coordinates)) {
+            L.geoJSON(z, {
+              style: {
+                color,
+                weight: 1.5,
+                fillOpacity: 0.15,
+                fillColor: color,
+              },
+            })
+              .bindPopup(popupContent)
+              .addTo(map);
+          } else if (Array.isArray(z.coordinates)) {
+            L.polygon(z.coordinates, {
+              color,
+              weight: 1.5,
+              fillOpacity: 0.15,
+              fillColor: color,
+            })
+              .bindPopup(popupContent)
+              .addTo(map);
+          }
+        } catch (err) {
+          console.warn("Failed to render zone polygon:", err);
+        }
       });
     }
 
-    // 3. Heavy Machinery Telemetry
-    if (activeLayers.machinery && data.layers.machinery) {
+    // 3. Heavy Machinery Telemetry (Points)
+    if (activeLayers.machinery && data.layers?.machinery && Array.isArray(data.layers.machinery)) {
       data.layers.machinery.forEach((m: any) => {
-        const iconColor = m.status === "ACTIVE" ? "#16A34A" : "#D97706";
-        const customIcon = L.divIcon({
-          className: "custom-gis-machinery",
-          html: `<div style="background-color: ${iconColor}; width: 14px; height: 14px; border-radius: 3px; border: 2px solid white; box-shadow: 0 1px 3px rgba(0,0,0,0.3);"></div>`,
-          iconSize: [14, 14],
-        });
+        if (!m) return;
+        try {
+          const props = m.properties || m;
+          const coords = getPointLatLng(m);
+          if (!coords) return;
 
-        L.marker(m.coordinates, { icon: customIcon })
-          .bindPopup(
-            `<b>Equipment:</b> ${m.name} (${m.code})<br/><b>Status:</b> ${m.status}<br/><b>Speed:</b> ${m.speed_kmh} km/h`
-          )
-          .addTo(map);
+          const isOperational = props.status === "ACTIVE" || props.status === "OPERATIONAL";
+          const iconColor = isOperational ? "#16A34A" : "#D97706";
+          const customIcon = L.divIcon({
+            className: "custom-gis-machinery",
+            html: `<div style="background-color: ${iconColor}; width: 14px; height: 14px; border-radius: 3px; border: 2px solid white; box-shadow: 0 1px 3px rgba(0,0,0,0.3);"></div>`,
+            iconSize: [14, 14],
+          });
+
+          L.marker(coords, { icon: customIcon })
+            .bindPopup(
+              `<b>Equipment:</b> ${props.name || "Machinery"} (${props.machine_id || props.code || "N/A"})<br/><b>Type:</b> ${props.type || "Heavy Equipment"}<br/><b>Status:</b> ${props.status || "N/A"}`
+            )
+            .addTo(map);
+        } catch (err) {
+          console.warn("Failed to render machinery marker:", err);
+        }
       });
     }
 
-    // 4. Hazardous Incidents
-    if (activeLayers.incidents && data.layers.incidents) {
+    // 4. Hazardous Incidents (Points)
+    if (activeLayers.incidents && data.layers?.incidents && Array.isArray(data.layers.incidents)) {
       data.layers.incidents.forEach((inc: any) => {
-        const customIcon = L.divIcon({
-          className: "custom-gis-incident",
-          html: `<div style="background-color: #DC2626; width: 16px; height: 16px; border-radius: 50%; border: 2px solid white; box-shadow: 0 1px 4px rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; color: white; font-size: 10px; font-weight: bold;">!</div>`,
-          iconSize: [16, 16],
-        });
+        if (!inc) return;
+        try {
+          const props = inc.properties || inc;
+          const coords = getPointLatLng(inc);
+          if (!coords) return;
 
-        L.marker(inc.coordinates, { icon: customIcon })
-          .bindPopup(
-            `<b>Incident:</b> ${inc.title}<br/><b>Severity:</b> ${inc.severity}<br/><b>Date:</b> ${inc.date}`
-          )
-          .addTo(map);
+          const customIcon = L.divIcon({
+            className: "custom-gis-incident",
+            html: `<div style="background-color: #DC2626; width: 16px; height: 16px; border-radius: 50%; border: 2px solid white; box-shadow: 0 1px 4px rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; color: white; font-size: 10px; font-weight: bold;">!</div>`,
+            iconSize: [16, 16],
+          });
+
+          L.marker(coords, { icon: customIcon })
+            .bindPopup(
+              `<b>Incident:</b> ${props.incident_id || props.title || "Incident"}<br/><b>Description:</b> ${props.description || "N/A"}<br/><b>Severity:</b> ${props.severity || "N/A"}<br/><b>Status:</b> ${props.status || "N/A"}`
+            )
+            .addTo(map);
+        } catch (err) {
+          console.warn("Failed to render incident marker:", err);
+        }
       });
     }
 
-    // 5. Environmental Sensors
-    if (activeLayers.environmental && data.layers.environmental) {
+    // 5. Environmental Sensors (Points)
+    if (activeLayers.environmental && data.layers?.environmental && Array.isArray(data.layers.environmental)) {
       data.layers.environmental.forEach((env: any) => {
-        const markerColor = env.is_breach ? "#DC2626" : "#2563EB";
-        const customIcon = L.divIcon({
-          className: "custom-gis-env",
-          html: `<div style="background-color: ${markerColor}; width: 12px; height: 12px; border-radius: 50%; border: 2px solid white; box-shadow: 0 1px 3px rgba(0,0,0,0.2);"></div>`,
-          iconSize: [12, 12],
-        });
+        if (!env) return;
+        try {
+          const props = env.properties || env;
+          const coords = getPointLatLng(env);
+          if (!coords) return;
 
-        L.marker(env.coordinates, { icon: customIcon })
-          .bindPopup(
-            `<b>Sensor:</b> ${env.node_id}<br/><b>CH4 (Methane):</b> ${env.ch4_pct}%<br/><b>CO:</b> ${env.co_ppm} ppm<br/><b>Breach:</b> ${env.is_breach ? "YES" : "NO"}`
-          )
-          .addTo(map);
+          const markerColor = props.is_breach ? "#DC2626" : "#2563EB";
+          const customIcon = L.divIcon({
+            className: "custom-gis-env",
+            html: `<div style="background-color: ${markerColor}; width: 12px; height: 12px; border-radius: 50%; border: 2px solid white; box-shadow: 0 1px 3px rgba(0,0,0,0.2);"></div>`,
+            iconSize: [12, 12],
+          });
+
+          L.marker(coords, { icon: customIcon })
+            .bindPopup(
+              `<b>Sensor:</b> ${props.metric || props.node_id || "Sensor Node"}<br/><b>Value:</b> ${props.value || "N/A"}<br/><b>Threshold:</b> ${props.threshold || "N/A"}<br/><b>Breach:</b> ${props.is_breach ? "YES" : "NO"}`
+            )
+            .addTo(map);
+        } catch (err) {
+          console.warn("Failed to render sensor marker:", err);
+        }
       });
     }
   }, [data, activeLayers]);

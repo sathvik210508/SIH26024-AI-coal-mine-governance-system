@@ -32,6 +32,16 @@ export const GovernmentRiskMap: React.FC = () => {
     fetchData();
   }, []);
 
+  // Cleanup map on unmount
+  useEffect(() => {
+    return () => {
+      if (mapInstanceRef.current) {
+        mapInstanceRef.current.remove();
+        mapInstanceRef.current = null;
+      }
+    };
+  }, []);
+
   // Initialize and update Leaflet Map
   useEffect(() => {
     if (!mapContainerRef.current || !data?.mines) return;
@@ -63,28 +73,45 @@ export const GovernmentRiskMap: React.FC = () => {
 
     // Add markers for all 6 mines
     data.mines.forEach((m: any) => {
-      const [lat, lng] = m.coordinates || [23.5, 83.5];
-      const isCritical = m.risk_tier === "CRITICAL";
-      const isHigh = m.risk_tier === "HIGH";
+      if (!m) return;
+      try {
+        const rawCoords = Array.isArray(m.coordinates)
+          ? m.coordinates
+          : [m.latitude, m.longitude];
+        let lat = typeof rawCoords?.[0] === "number" && !isNaN(rawCoords[0]) ? rawCoords[0] : 23.5;
+        let lng = typeof rawCoords?.[1] === "number" && !isNaN(rawCoords[1]) ? rawCoords[1] : 83.5;
 
-      const markerColor = isCritical ? "#DC2626" : isHigh ? "#EA580C" : "#10B981";
+        // If longitude and latitude were inverted in raw data
+        if (lat > 60 && lng < 40) {
+          const temp = lat;
+          lat = lng;
+          lng = temp;
+        }
 
-      const marker = L.circleMarker([lat, lng], {
-        radius: isCritical ? 11 : 9,
-        fillColor: markerColor,
-        color: "#FFFFFF",
-        weight: 2,
-        fillOpacity: 0.9,
-      }).addTo(map);
+        const isCritical = m.risk_tier === "CRITICAL";
+        const isHigh = m.risk_tier === "HIGH";
 
-      marker.bindTooltip(`<b>${m.name}</b><br/>Risk Score: ${m.risk_score} (${m.risk_tier})`, {
-        direction: "top",
-        className: "leaflet-custom-tooltip",
-      });
+        const markerColor = isCritical ? "#DC2626" : isHigh ? "#EA580C" : "#10B981";
 
-      marker.on("click", () => {
-        setSelectedMine(m);
-      });
+        const marker = L.circleMarker([lat, lng], {
+          radius: isCritical ? 11 : 9,
+          fillColor: markerColor,
+          color: "#FFFFFF",
+          weight: 2,
+          fillOpacity: 0.9,
+        }).addTo(map);
+
+        marker.bindTooltip(`<b>${m.name || "Mine"}</b><br/>Risk Score: ${m.risk_score ?? "N/A"} (${m.risk_tier || "N/A"})`, {
+          direction: "top",
+          className: "leaflet-custom-tooltip",
+        });
+
+        marker.on("click", () => {
+          setSelectedMine(m);
+        });
+      } catch (err) {
+        console.warn("Failed to render mine marker on national risk map:", err);
+      }
     });
   }, [data]);
 
